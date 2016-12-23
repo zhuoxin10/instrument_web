@@ -1,0 +1,23 @@
+<!--
+    you can substitue the span of reauth email for a input with the email and
+    include the remember me checkbox
+    -->
+    <div class="container">
+        <div class="card card-container">
+<!--             <img class="profile-img-card" src="//lh3.googleusercontent.com/-6V8xOA6M7BA/AAAAAAAAAAI/AAAAAAAAAAA/rzlHcD0KYwo/photo.jpg?sz=120" alt="" /> -->
+            <!-- <img id="profile-img" class="profile-img-card" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" /> -->
+            <!-- <p id="profile-name" class="profile-name-card"></p> -->
+            <form class="form-signin">
+                <span id="reauth-email" class="reauth-email"></span>
+                <input type="tel" id="inputTel" class="form-control" placeholder="手机号" required autofocus>
+                <button class="btn btn-lg btn-primary btn-block btn-signin" type="submit" ng-click='signIn()'>发送验证码</button>
+                <input type="password" id="inputPassword" class="form-control" placeholder="验证码" required>
+
+                <button class="btn btn-lg btn-primary btn-block btn-signin" type="submit" ng-click='signIn()'><a href="#/setpassword">下一步</a></button>
+                <!-- <button class="btn btn-lg btn-primary btn-block btn-signin" ng-click='toRegister()'>注册</button> -->
+            </form><!-- /form -->
+  <!--           <a href="#/phonevalid" class="forgot-password">
+                忘记密码？
+            </a> -->
+        </div><!-- /card-container -->
+    </div><!-- /container -->

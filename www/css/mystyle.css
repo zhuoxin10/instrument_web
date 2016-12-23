@@ -1,0 +1,16 @@
+/*.nav-pills>li>a:active {
+    color: #fff;
+    background-color: #337ab7;
+}
+.nav-pills>li>a:hover {
+    color: #23527c;
+    background-color: #eee;
+}
+.nav-pills>li>a:focus {
+    color: #23527c;
+    background-color: #eee;
+}
+.nav-pills>li>a:visited {
+    color: #337ab7;
+    background-color: transparent;
+}*/

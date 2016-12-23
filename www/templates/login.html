@@ -1,0 +1,30 @@
+<!--
+    you can substitue the span of reauth email for a input with the email and
+    include the remember me checkbox
+    -->
+    <div class="container">
+        <div class="card card-container">
+<!--             <img class="profile-img-card" src="//lh3.googleusercontent.com/-6V8xOA6M7BA/AAAAAAAAAAI/AAAAAAAAAAA/rzlHcD0KYwo/photo.jpg?sz=120" alt="" /> -->
+            <img id="profile-img" class="profile-img-card" src="//ssl.gstatic.com/accounts/ui/avatar_2x.png" />
+            <p id="profile-name" class="profile-name-card"></p>
+            <form class="form-signin">
+                <span id="reauth-email" class="reauth-email"></span>
+                <!-- <input type="tel" id="inputTel" class="form-control" placeholder="账号" required autofocus> -->
+                <!-- <input type="password" id="inputPassword" class="form-control" placeholder="密码" required> -->
+                <input type="tel" id="inputTel" class="form-control" placeholder="账号" >
+                <input type="password" id="inputPassword" class="form-control" placeholder="密码">
+                <div id="remember" class="checkbox">
+                    <label>
+                        <input type="checkbox" value="remember-me"> 记住密码
+                    </label>
+                </div>
+                <!-- <button class="btn btn-lg btn-primary btn-block btn-signin" type="submit" href="#/main/home" >登录</button> -->
+                <button class="btn btn-lg btn-primary btn-block btn-signin" href='#/main/monitors'  ><a href="#/main/monitors">登录</a></button>
+
+                <button class="btn btn-lg btn-primary btn-block btn-signin" href='#/phonevalid'><a href="#/phonevalid">注册</a></button></button>
+            </form>
+            <a href="#/phonevalid" class="forgot-password">
+                忘记密码？
+            </a>
+        </div><!-- /card-container -->
+    </div><!-- /container -->
