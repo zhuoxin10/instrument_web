@@ -77,10 +77,16 @@ angular.module('IntelligentDetector',['ui.router','controllers','services','dire
       url:"/setpassword",
       templateUrl:'templates/settings/setPassword.html'
     })
-
+    .state('changePassword',{
+      url:"/changepassword",
+      templateUrl:'templates/settings/changePassword.html'
+    })
     .state('phoneValid',{
       url:"/phonevalid",
       templateUrl:'templates/settings/phonevalid.html'
     })
-
+    .state('userDetail',{
+      url:"/userdetail",
+      templateUrl:'templates/settings/userdetail.html'
+    })
 }])
