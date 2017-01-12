@@ -5,7 +5,7 @@ angular.module('IntelligentDetector',['ui.router','controllers','services','dire
 .config(['$stateProvider','$urlRouterProvider',function($stateProvider,$urlRouterProvider){
   console.log(123);
   $urlRouterProvider.otherwise("/login");
-  $urlRouterProvider.when('/main', '/main/data');
+  $urlRouterProvider.when('/main', '/main/data/testResult');
   $stateProvider
   // 登录
     .state('login',{
@@ -17,10 +17,6 @@ angular.module('IntelligentDetector',['ui.router','controllers','services','dire
       abstract:true,
       url:"/main",
       templateUrl:"templates/main.html"
-    })
-    .state('main.home',{
-      url:"/home",
-      templateUrl:'templates/home.html'
     })
     .state('main.data',{
       url:"/data",
@@ -35,27 +31,19 @@ angular.module('IntelligentDetector',['ui.router','controllers','services','dire
       templateUrl:'templates/settings.html'
     })
     // 汇总数据
-    .state('main.computerVision',{
-      url:"/computerVision",
-      templateUrl:'templates/data/computerVision.html'
+    .state('main.data.testResult',{
+      url:"/testResult",
+      templateUrl:'templates/data/testResult.html'
     })
-    .state('main.detection',{
-      url:"/detection",
-      templateUrl:'templates/data/detection.html'
-    })
-    .state('main.incubator',{
-      url:"/incubator",
-      templateUrl:'templates/data/incubator.html'
-    })
-    .state('main.instrument',{
+    .state('main.data.instrument',{
       url:"/instrument",
       templateUrl:'templates/data/instrument.html'
     })
-    .state('main.reagent',{
+    .state('main.data.reagent',{
       url:"/reagent",
       templateUrl:'templates/data/reagent.html'
     })
-    .state('main.sampling',{
+    .state('main.data.sampling',{
       url:"/sampling",
       templateUrl:'templates/data/sampling.html'
     })
