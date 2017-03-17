@@ -11,6 +11,7 @@ angular.module('IntelligentDetector',['ui.router','controllers','services','dire
     .state('login',{
       url:"/login",
       templateUrl:"templates/login.html",
+        controller:"LoginCtrl"
     })
   // 主页面
     .state('main',{
