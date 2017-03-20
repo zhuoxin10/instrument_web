@@ -32,6 +32,10 @@ angular.module('IntelligentDetector',['ui.router','controllers','services','dire
       templateUrl:'templates/settings.html'
     })
     // 汇总数据
+    .state('main.data.sampleList',{
+        url:"/sampleList",
+        templateUrl:'templates/data/sampleList.html'
+    })
     .state('main.data.testResult',{
       url:"/testResult",
       templateUrl:'templates/data/testResult.html'

@@ -110,7 +110,7 @@
         var idReg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
 
         serve.Login = function(username,password){
-            var deferred = $q.defer()
+            var deferred = $q.defer();
             Data.Users.Login({UserId:username,InPassword:password,TerminalIP:1,TerminalName:1,revUserId:username},function (data,headers,status) {
                 deferred.resolve(data);
 
@@ -122,6 +122,18 @@
 
         }
 
+        serve.Register = function(username,password){
+            var deferred = $q.defer();
+            Data.Users.Register({UserId:username,InPassword:password,TerminalIP:1,TerminalName:1,revUserId:username},function (data,headers,status) {
+                deferred.resolve(data);
+
+            },function(err){
+                deferred.reject(err);
+            });
+
+            return deferred.promise;
+
+        }
         //注册
 
         //登陆
