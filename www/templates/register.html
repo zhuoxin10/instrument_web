@@ -1,0 +1,78 @@
+<div class="container">
+    <div class="row ">
+
+        <div class="main-login main-center">
+            <h2 class="form-signin-heading">注册</h2>
+
+
+
+            <form class="form-horizontal" method="post" action="#">
+
+                <div class="form-group">
+                    <label for="name" class="cols-sm-2 control-label"></label>
+                    <div class="cols-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
+                            <input type="text" class="form-control" ng-model="registerInfo.username" placeholder="请输入姓名"/>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!--<div class="form-group">-->
+                    <!--<label for="username" class="cols-sm-2 control-label"></label>-->
+                    <!--<div class="cols-sm-10">-->
+                        <!--<div class="input-group">-->
+                            <!--<span class="input-group-addon"><i class="fa fa-users fa" aria-hidden="true"></i></span>-->
+                            <!--<input type="text" class="form-control" ng-model="registerInfo.username"  placeholder="请输入用户名"/>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <div class="form-group">
+                    <label for="username" class="cols-sm-2 control-label"></label>
+                    <div class="cols-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-users fa" aria-hidden="true"></i></span>
+                            <input type="text" class="form-control" ng-model="registerInfo.id"  placeholder="身份证号码"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="cols-sm-2 control-label"></label>
+                    <div class="cols-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                            <input type="password" class="form-control" ng-model="registerInfo.password"  placeholder="密码"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm" class="cols-sm-2 control-label"></label>
+                    <div class="cols-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                            <input type="password" class="form-control" ng-model="registerInfo.password_rep"  placeholder="再次输入密码"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <select multiple class="form-control" ng-model = "registerInfo.role">
+                        <option>管理员</option>
+                        <option>操作员</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <a type="button" class="btn btn-primary btn-lg btn-block login-button" ng-click="onClickReg(registerInfo)" >注册</a>
+                    <a type="button" class="btn btn-primary btn-lg btn-block login-button" href="#/login">取消</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+

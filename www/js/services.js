@@ -81,9 +81,11 @@
             Register:{method:'POST', params:{route: 'MstUserRegister'}, timeout: 10000},
             ChangePassword:{method:'POST',params:{route:'MstUserChangePassword'},timeout: 10000},
             UpdateUserInfo:{method:'POST',params:{route:'MstUserUpdateUserInfo'},timeout:10000},
-            GetUserInfo:{method:'POST',params:{route:'MstUserGetUserInfo'}, timeout:10000}
+            GetUserInfo:{method:'GET',params:{route:'MstUserGetUserInfo'}, timeout:10000},
+            CreateNewUserId:{method:'GET',params:{route:'MstUserCreateNewUserId'},timeout:10000},
+            GetUserByPhoneNo:{method:'GET',params:{route:'MstUserGetUserByPhoneNo'},timeout:10000}
         })
-    }
+    };
 
     serve.abort = function($scope){
         abort.resolve();
@@ -93,7 +95,7 @@
             serve.Users = Users();
 
         }, 0, 1);
-    }
+    };
 
     serve.Users = Users();
 
@@ -101,7 +103,7 @@
 }])
 
     //用户相关操作
-.factory('UserService',['$http','$q' , 'Storage','Data', function($http,$q,Storage,Data){
+.factory('UserService',['$http','$q' , 'Storage','Data', 'CONFIG',function($http,$q,Storage,Data,CONFIG){
 
         var serve = {};
 
@@ -109,22 +111,31 @@
 
         var idReg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
 
-        serve.Login = function(username,password){
+        var phonenumber = '';
+        var UID = '';
+
+
+        serve.SetPhenoNo = function(no){
+            phonenumber =  no;
+            console.log("已经缓存电话号码");
+        };
+        serve.GetPhenoNo = function(){
+            return phonenumber;
+        };
+
+        serve.GetUID = function(){
+            return UID;
+        };
+        serve.SetUID = function(id){
+            UID =  id;
+            console.log("已经缓存UID");
+        };
+
+
+        //登陆
+        serve.Login = function(uid,password){
             var deferred = $q.defer();
-            Data.Users.Login({UserId:username,InPassword:password,TerminalIP:1,TerminalName:1,revUserId:username},function (data,headers,status) {
-                deferred.resolve(data);
-
-            },function(err){
-                deferred.reject(err);
-            })
-
-            return deferred.promise;
-
-        }
-
-        serve.Register = function(username,password){
-            var deferred = $q.defer();
-            Data.Users.Register({UserId:username,InPassword:password,TerminalIP:1,TerminalName:1,revUserId:username},function (data,headers,status) {
+            Data.Users.Login({UserId:uid,InPassword:password,TerminalIP:1,TerminalName:1,revUserId:uid},function (data,headers,status) {
                 deferred.resolve(data);
 
             },function(err){
@@ -133,8 +144,102 @@
 
             return deferred.promise;
 
-        }
+        };
         //注册
+        serve.RegisterUser = function(info){
+
+            if(UID == '' || phonenumber == ''){
+                console.log([UID,phonenumber]);
+                return
+            }
+
+            var deferred = $q.defer();
+            Data.Users.Register(
+                {
+                    UserId: info.uid,
+                    Identify: info.id,
+                    PhoneNo: phonenumber,
+                    UserName: info.username,
+                    Role: info.role,
+                    Password: info.password,
+                    TerminalIP: 1,
+                    revUserId: UID
+                } ,function (data,headers,status) {
+                deferred.resolve(data);
+
+            },function(err){
+                deferred.reject(err);
+            });
+
+            return deferred.promise;
+
+        };
+        //创建新的用户
+        serve.CreateNewUserId = function(phonenumber){
+            var deferred = $q.defer();
+            Data.Users.CreateNewUserId({PhoneNo:phonenumber},function (data,headers,status) {
+                deferred.resolve(data);
+
+            },function(err){
+                deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+        //用手机号获取用户ID
+        serve.GetUserByPhoneNo = function(phonenumber){
+            var deferred = $q.defer();
+            Data.Users.GetUserByPhoneNo({PhoneNo:phonenumber},function (data,headers,status) {
+                deferred.resolve(data);
+
+            },function(err){
+                deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
+        //获取用户信息
+        serve.GetUserInfo = function(userid){
+            var deferred = $q.defer();
+            Data.Users.GetUserInfo(
+                {
+                    UserId:userid,
+                    Identify:1,
+                    PhoneNo:1,
+                    UserName:1,
+                    Role:1,
+                    Password:1,
+                    LastLoginTime:1,
+                    RevisionInfo:1
+                },function (data,headers,status) {
+                deferred.resolve(data);
+            },function(err){
+                deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
+        //修改密码
+        serve.ChangePassword = function(password){
+            var deferred = $q.defer();
+            Data.Users.ChangePassword(
+                {
+                    "UserId": Storage.get("UID"),
+                    "OldPassword": password.password_old,
+                    "NewPassword": password.password,
+                    "TerminalIP": CONFIG.baseUrl,
+                    "revUserId": Storage.get("UID")
+                },function (data,headers,status) {
+                deferred.resolve(data);
+            },function(err){
+                deferred.reject(err);
+            });
+
+            return deferred.promise;
+        };
+
 
         //登陆
 
@@ -150,120 +255,7 @@
         //二维码？
 
         //推送
-        // serve.Roles = function (_UserId){
-        //     var deferred = $q.defer();
-        //     Data.Users.Roles({UserId:_UserId},
-        //         function(data){
-        //             deferred.resolve(data);
-        //         },function(err){
-        //             deferred.reject(err);
-        //         });
-        //     return deferred.promise;
-        // }
-        //
-        // serve.userLogOn = function(_PwType,_username,_password,_role){
-        //     if(!phoneReg.test(_username)){
-        //         return 7;
-        //     }
-        //     var deferred = $q.defer();
-        //     Data.Users.LogOn({PwType:_PwType, username:_username, password:_password, role: _role},
-        //         function(data,hearders,status){
-        //             deferred.resolve(data);
-        //         },
-        //         function(err){
-        //             deferred.reject(err);
-        //         });
-        //     return deferred.promise;
-        // }
-        //
-        // serve.UID = function(_Type,_Name){
-        //     if(!phoneReg.test(_Name)){
-        //         return 7;
-        //     }
-        //
-        //     var deferred = $q.defer();
-        //     Data.Users.getUID({Type: _Type, Name: _Name},
-        //         function(data,status){
-        //             deferred.resolve(data);
-        //         },
-        //         function(err){
-        //             deferred.reject(err);
-        //         });
-        //     return deferred.promise;
-        // }
-        // // LZN 20151120
-        // serve.sendSMS_lzn = function(arr){
-        //     var deferred = $q.defer();
-        //     Data.Service.sendSMS_lzn(arr,
-        //         function(data,headers){
-        //             deferred.resolve(data);
-        //         },
-        //         function(err){
-        //             deferred.reject(err);
-        //         });
-        //     return deferred.promise;
-        // }
-        // // LZN 20151120
-        // serve.PushNotification = function(arr){
-        //     var deferred = $q.defer();
-        //     Data.Service.PushNotification(arr,function (data,headers){
-        //             deferred.resolve(data);
-        //         },
-        //         function(err){
-        //             deferred.reject(err);
-        //         })
-        //     return deferred.promise;
-        // }
-        // serve.sendSMS = function( _phoneNo,_smsType){
-        //     if(!phoneReg.test(_phoneNo)){
-        //         return 7;
-        //     }
-        //
-        //     var deferred = $q.defer();
-        //     Data.Service.sendSMS({mobile: _phoneNo, smsType:_smsType},
-        //         function(data,status){
-        //             deferred.resolve(data,status);
-        //         },
-        //         function(err){
-        //             deferred.reject(err);
-        //         });
-        //     return deferred.promise;
-        // }
-        // serve.checkverification = function(_mobile,_smsType,_verification){
-        //     var deferred = $q.defer();
-        //     Data.Service.checkverification({mobile:_mobile,smsType:_smsType,verification:_verification},
-        //         function(data,status){
-        //             deferred.resolve(data);
-        //         },
-        //         function(err){
-        //             deferred.reject(err);
-        //         })
-        //     return deferred.promise;
-        // }
-        //
-        // serve.changePassword = function(_OldPassword,_NewPassword,_UserId){
-        //     var deferred = $q.defer();
-        //     Data.Users.ChangePassword({OldPassword:_OldPassword, NewPassword: _NewPassword, UserId:_UserId,  "revUserId": "sample string 4","TerminalName": "sample string 5", "TerminalIP": "sample string 6","DeviceType": 1},
-        //         function(data,headers,status){
-        //             deferred.resolve(data);
-        //         },
-        //         function(err){
-        //             deferred.reject(err);
-        //         })
-        //     return deferred.promise;
-        // }
-        //
-        // serve.userRegister = function(_PwType, _userId, _UserName, _Password,_role){
-        //     var deferred = $q.defer();
-        //     Data.Users.Register({"PwType":_PwType,"userId":_userId,"Username":_UserName,"Password":_Password,role:_role,"revUserId": "sample string 6","TerminalName": "sample string 7","TerminalIP": "sample string 8","DeviceType": 1},
-        //         function(data,headers,status){
-        //             deferred.resolve(data);
-        //         },
-        //         function(err){
-        //             deferred.reject(err);;
-        //         })
-        //     return deferred.promise;
-        // }
+
         return serve;
 }])
 
