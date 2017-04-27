@@ -20,7 +20,7 @@
 .constant('CONFIG', {
     baseUrl: 'http://10.12.43.34:8090/Api/v1/',  //RESTful 服务器  10.12.43.34:8090/Api/v1
 
-
+    socketPort: 'http://127.0.0.1:8080/realTime', //Socket 端口
     ImageAddressIP: "http://121.43.107.106:8088",
     ImageAddressFile : "/PersonalPhoto",
     ImageAddressFile_Check : "/PersonalPhotoCheck",  //lrz20151104
@@ -66,6 +66,38 @@
      */
 })
 
+
+.factory('SocketService',['$rootScope','CONFIG', function($rootScope,CONFIG){
+
+    console.log(CONFIG.socketPort);
+    var socket = io.connect(CONFIG.socketPort);
+
+    var serve = {};
+
+    serve.on = function(eventName,callback){
+
+        socket.on(eventName,function(){
+            var args = arguments;
+            $rootScope.$apply(function(){
+                callback.apply(socket,args);
+            })
+        })
+
+    };
+
+    serve.emit = function(eventName,data,callback){
+        socket.emit(eventName, data, function(){
+            var args = arguments;
+            $rootScope.$apply(function(){
+                if(callback){
+                    callback.apply(socket,args);
+                }
+            })
+        })
+    };
+
+    return serve;
+}])
 .factory('Data',['$resource', '$q','$interval' ,'CONFIG','Storage' , function($resource,$q,$interval ,CONFIG,Storage){
     var serve = {};
     var abort = $q.defer;
@@ -87,23 +119,50 @@
         })
     };
 
+    // 信息统计--张桠童
+    var ItemInfo = function(){
+        return $resource(CONFIG.baseUrl+':path/:route',{path:'ItemInfo'},{
+            GetSamplesInfo:{method:'POST',params:{route:'ItemSampleGetSamplesInfoByAnyProperty'},timeout:10000,isArray:true},
+            GetReagentsInfo:{method:'POST',params:{route:'ItemReagentGetReagentsInfoByAnyProperty'},timeout:10000,isArray:true},
+            GetIsolatorsInfo:{method:'POST',params:{route:'ItemIsolatorGetIsolatorsInfoByAnyProperty'},timeout:10000,isArray:true},
+            GetIncubatorsInfo:{method:'POST',params:{route:'ItemIncubatorGetIncubatorsInfoByAnyProperty'},timeout:10000,isArray:true}
+        })
+    }
+    // 检测结果-张桠童
+    var Result = function(){
+        return $resource(CONFIG.baseUrl+':path/:route',{path:'Result'},{
+            GetTestResultInfo:{method:'POST',params:{route:'ResTestResultGetResultInfosByAnyProperty'},timeout:10000,isArray:true}
+        })
+    }
+    // 仪器信息-张桠童
+    var Operation = function(){
+        return $resource(CONFIG.baseUrl+':path/:route',{path:'Operation'},{
+            GetEquipmentOps:{method:'POST',params:{route:'OpEquipmentGetEquipmentOpsByAnyProperty'},timeout:10000,isArray:true}
+        })
+    }
+
     serve.abort = function($scope){
         abort.resolve();
         $interval(function () {
             abort = $q.defer();
 
             serve.Users = Users();
-
+            serve.ItemInfo = ItemInfo();
+            serve.Result = Result();
+            serve.Operation = Operation();
         }, 0, 1);
     };
 
     serve.Users = Users();
-
+    serve.ItemInfo = ItemInfo();
+    serve.Result = Result();
+    serve.Operation = Operation();
     return serve;
 }])
 
     //用户相关操作
 .factory('UserService',['$http','$q' , 'Storage','Data', 'CONFIG',function($http,$q,Storage,Data,CONFIG){
+        console.log("UserService Initializing");
 
         var serve = {};
 
@@ -111,9 +170,25 @@
 
         var idReg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
 
-        var phonenumber = '';
-        var UID = '';
 
+        var UID = Storage.get("UID");
+
+        var phonenumber = '';
+
+        var personalInfo = {
+            UserId:UID,
+            Identify:1,
+            PhoneNo:1,
+            UserName:1,
+            Role:1,
+            Password:0,
+            LastLoginTime:1,
+            RevisionInfo:1
+        };
+
+        var personalInfo_n = ["UserId","Identify","PhoneNo","UserName","Role","Password","LastLoginTime","RevisionInfo"];
+
+        for (n in personalInfo)
 
         serve.SetPhenoNo = function(no){
             phonenumber =  no;
@@ -147,13 +222,14 @@
         };
         //注册
         serve.RegisterUser = function(info){
-
+            var deferred = $q.defer();
             if(UID == '' || phonenumber == ''){
                 console.log([UID,phonenumber]);
-                return
+                deferred.resolve({result:null});
+                return deferred.promise;
             }
 
-            var deferred = $q.defer();
+
             Data.Users.Register(
                 {
                     UserId: info.uid,
@@ -199,21 +275,47 @@
             return deferred.promise;
         };
 
-        //获取用户信息
-        serve.GetUserInfo = function(userid){
+        //获取用户信息 输入下表 返回属性名和值
+        serve.GetUserInfo = function(index){
+
             var deferred = $q.defer();
-            Data.Users.GetUserInfo(
-                {
-                    UserId:userid,
-                    Identify:1,
-                    PhoneNo:1,
-                    UserName:1,
-                    Role:1,
-                    Password:1,
-                    LastLoginTime:1,
-                    RevisionInfo:1
-                },function (data,headers,status) {
+            if( UID == '' ) {
+                deferred.resolve(null);
+                console.log("本地没有UID");
+                return;
+            } //没有存入用户名 返回
+            /**
+             * Array.prototype.[method name] allows you to define/overwrite an objects method
+             * needle is the item you are searching for
+             * this is a special variable that refers to "this" instance of an Array.
+             * returns true if needle is in the array, and false otherwise
+             */
+            Array.prototype.contains = function ( needle ) {
+                for (i in this) {
+                    if (this[i] == needle) return true;
+                }
+                return false;
+            };
+
+            //slice出对应的属性
+            t = {};
+            infoName = [];
+            for(p in personalInfo){
+                infoName.concat(p);
+                if(index.contains(p) ){
+                    // console.log(p);
+                    t[p] = 1;
+                }
+                else{
+                    t[p] = 0;
+                }
+            }
+            t["UserId"] = UID;
+            // console.log(t);
+            // var deferred = $q.defer();
+            Data.Users.GetUserInfo(t,function (data,headers,status) {
                 deferred.resolve(data);
+                // deferred.resolve(infoName);
             },function(err){
                 deferred.reject(err);
             });
@@ -222,15 +324,17 @@
         };
 
         //修改密码
-        serve.ChangePassword = function(password){
+        serve.ChangePassword = function(password,ifp){
+
             var deferred = $q.defer();
             Data.Users.ChangePassword(
                 {
-                    "UserId": Storage.get("UID"),
+                    "UserId": UID,
+                    "IfPhone": ifp,
                     "OldPassword": password.password_old,
                     "NewPassword": password.password,
                     "TerminalIP": CONFIG.baseUrl,
-                    "revUserId": Storage.get("UID")
+                    "revUserId": UID
                 },function (data,headers,status) {
                 deferred.resolve(data);
             },function(err){
@@ -297,16 +401,92 @@
     return serve;
 }])
 
-.factory('OperateService',['$http','$q' , 'Storage','Data', function($http,$q,Storage,Data){
+.factory('OperateService',['$http','$q' , 'Storage','Data', 'UserService',function($http,$q,Storage,Data,UserService){
 
+    //初始化获得权限，根据权限返回操作的接口
 
+    //初始化从服务器获得目前所处的状态
 
-        //
+    var serve = {};
+    return serve;
+}])
 
-        //初始化从服务器获得目前所处的状态
+// 获取统计信息--张桠童
+.factory('ItemInfo',['$http','$q','Storage','Data',function($http,$q,Storage,Data){
+        var self = this;
+        // 获取样品信息表
+        self.GetSamplesInfo = function(obj){
+            var deferred = $q.defer();
+            Data.ItemInfo.GetSamplesInfo(obj, function(data, headers){
+                deferred.resolve(data);
+            }, function(err){
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+        // 获取试剂信息表
+        self.GetReagentsInfo = function(obj){
+            var deferred = $q.defer();
+            Data.ItemInfo.GetReagentsInfo(obj, function(data, headers){
+                deferred.resolve(data);
+            }, function(err){
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+        // 获取隔离器信息表
+        self.GetIsolatorsInfo = function(obj){
+            var deferred = $q.defer();
+            Data.ItemInfo.GetIsolatorsInfo(obj, function(data, headers){
+                deferred.resolve(data);
+            }, function(err){
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+        // 获取培养箱信息表
+        self.GetIncubatorsInfo = function(obj){
+            var deferred = $q.defer();
+            Data.ItemInfo.GetIncubatorsInfo(obj, function(data, headers){
+                deferred.resolve(data);
+            }, function(err){
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+        return self;
+    }])
 
-        var serve = {};
-        return serve;
+// 获取检测结果--张桠童
+.factory('Result',['$http','$q','Storage','Data',function($http,$q,Storage,Data){
+    var self = this;
+    // 获取检测结果信息表
+    self.GetTestResultInfo = function(obj){
+        var deferred = $q.defer();
+        Data.Result.GetTestResultInfo(obj, function(data, headers){
+            deferred.resolve(data);
+        }, function(err){
+            deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
+}])
+
+// 获取仪器信息--张桠童
+.factory('Operation',['$http','$q','Storage','Data',function($http,$q,Storage,Data){
+    var self = this;
+    // 获取检测结果信息表
+    self.GetEquipmentOps = function(obj){
+        var deferred = $q.defer();
+        Data.Operation.GetEquipmentOps(obj, function(data, headers){
+            deferred.resolve(data);
+        }, function(err){
+            deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    return self;
 }])
 
 

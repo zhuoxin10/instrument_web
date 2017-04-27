@@ -1,16 +1,86 @@
-/*.nav-pills>li>a:active {
-    color: #fff;
-    background-color: #337ab7;
-}
-.nav-pills>li>a:hover {
+/* 37-Circular: */
+.circular {
+  background: #EBEBE9;
+  background-image: linear-gradient(-70deg, rgba(255, 255, 255, 0.35) 3%, rgba(0, 0, 0, 0.35) 100%), radial-gradient(101% 97%, rgba(255, 255, 255, 0.5) 0%, rgba(0, 0, 0, 0.5) 98%);
+  background-blend-mode: normal, normal, lighten; }
+
+body {
+  font: 100% Helvetica, sans-serif;
+  color: #333;
+  background-color: inherit; }
+
+nav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none; }
+nav li {
+  display: inline-block; }
+nav a {
+  display: block;
+  padding: 6px 12px;
+  text-decoration: none; }
+
+.container {
+  margin-top: 160px;
+  margin-outside: 10dppx;
+  text-align: center;
+  margin-bottom: 10px;
+  width: 500px;
+  height: 500px;
+  border-radius: 20px; }
+  .container h1 {
+    text-align: center; }
+  .container img {
+    text-align: center;
+    width: 120px;
+    height: 120px; }
+  .container form {
+    font-size: medium;
+    border-color: #3c763d;
+    border-top: inset;
+    border-radius: 0px;
+    text-align: left; }
+    .container form .form-group {
+      margin-top: 20px;
+      margin-bottom: 20px; }
+      .container form .form-group .form-control {
+        margin-top: 5px;
+        margin-bottom: 5px; }
+    .container form .label-link {
+      float: right; }
+  .container .btn {
+    width: 210px; }
+  .container .row-label {
+    font-size: 20px;
+    text-align: left;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 20px;
+    border-left-color: #3e8f3e;
+    border-left-style: solid; }
+
+.container-personal {
+  margin-right: 500px;
+  margin-top: 300px; }
+  .container-personal h1 {
+    text-align: left; }
+
+.env-panel {
+  border: dotted #5cb85c;
+  margin: 1%;
+  background-color: #f4f4f4;
+  border-radius: 2%; }
+  .env-panel h4 {
+    font-size: x-large;
     color: #23527c;
-    background-color: #eee;
-}
-.nav-pills>li>a:focus {
-    color: #23527c;
-    background-color: #eee;
-}
-.nav-pills>li>a:visited {
-    color: #337ab7;
-    background-color: transparent;
-}*/
+    box-shadow: inset;
+    font-style: normal; }
+  .env-panel p {
+    color: #3c3c3c;
+    font-size: larger; }
+    .env-panel p code {
+      float: right;
+      background-color: #b9def0;
+      color: #3c763d; }
+
+/*# sourceMappingURL=mystyle.css.map */

@@ -4,7 +4,7 @@
 
     //捆绑变量
     $scope.logdisable = false;
-    $scope.logStatus = " ";
+    $scope.logStatus = "   ";
 
     // 判断当前本地是否缓存了手机号
     if(Storage.get('PHONENO')!=null){ //缓存了手机号 将其显示到输入栏
@@ -60,7 +60,7 @@
                           //     console.log(data.result.split('|'))
                           // });
                           // 跳转到主页
-                          $timeout(function(){$state.go('main.data');} , 500);
+                          $timeout(function(){$state.go('main');} , 500);
 
                       }
                       else{
@@ -121,7 +121,7 @@
     $scope.check = '';
     $scope.validStatus = "点击发送验证码";
     $scope.title = " ";
-
+    $scope.if_disabled = false;
     switch(Storage.get('setPasswordState')){
         case 'register':  $scope.title = "注册"; break;
         case 'reset': $scope.title = "找回密码"; break;
@@ -156,6 +156,7 @@
             }
         },function(er){
             console.log(er)
+            $scope.validStatus = "验证失败";
         });
     }
 
@@ -178,12 +179,14 @@
             else if(uid_valid.test(data)){
                 Storage.set("UID",data);
                 UserService.SetUID(data);
+                UserService.SetPhenoNo(tel);
                 $scope.validStatus = "已发送验证";
             }
         })
     };
 
     $scope.SendMSM = function(tel){
+        if($scope.if_disabled) return;
 
         var phonev = /^1(3|4|5|7|8)\d{9}$/;
         if(!phonev.test(tel) ){
@@ -198,9 +201,10 @@
         else{
             ResetPassword(tel);
         }
+        $scope.if_disabled = true;
 
         //倒计时60s
-        $timeout(function(){$scope.validStatus = "点击发送验证码";} , 60000);
+        $timeout(function(){$scope.validStatus = "点击发送验证码";$scope.if_disabled = false;} , 60000);
         var second = 60;
         timePromise = undefined;
 
@@ -284,7 +288,7 @@
         UserService.RegisterUser(registerInfo).then(function(data){
             // console.log(data);
             if(data.result == "注册成功"){
-                $timeout(function(){$state.go('main.data');} , 500);
+                $timeout(function(){$state.go('main');} , 500);
                 $scope.status = "注册成功";
             }
             else{
@@ -298,7 +302,8 @@
 
     $scope.Input = {
         password:'',
-        password2:''
+        password2:'',
+        password_old :''
     };
 
     $scope.status = "";
@@ -317,23 +322,51 @@
         }
 
         // console.log(Storage.get("UID"));
-        UserService.GetUserInfo(Storage.get("UID")).then(function(data){
+        // infoIndex = ["UserId","Identify","PhoneNo","UserName","Role"];
+        // UserService.GetUserInfo(infoIndex).then(function(data){
             // console.log(Storage.get("UID"));
-            data = data.toJSON();
-            var t = "";
-            for(i in data){
-                t = t + data[i];
-            }
-            data = t;
 
-            data = data.split('|');
+            // if(data == null) {
+            //     $scope.status = "修改失败，请重试";
+            //     return;
+            // }
 
+            // data = data.toJSON();
+            // var t = "";
+            // for(i in data){
+            //     t = t + data[i];
+            // }
+            // data = t;
+            //
+            // data = data.split('|');
             // console.log(data);
-            Input.password_old = data[4];
+            // registerInfo = {
+            //     uid:UserService.GetUID(),
+            //     username:data[2],
+            //     id:data[0],
+            //     password:Input.password,
+            //     role:data[3]
+            // };
 
-            UserService.ChangePassword(Input).then(function(res){
+
+
+
+            // UserService.RegisterUser(registerInfo).then(function(data){
+            //     // console.log(data);
+            //     if(data.result == "注册成功"){
+            //         $timeout(function(){$state.go('main.data');} , 500);
+            //         $scope.status = "修改成功";
+            //     }
+            //     else{
+            //         $scope.status = "修改失败";
+            //     }
+            // });
+            // console.log(data);
+            // Input.password_old = data[4];
+
+            UserService.ChangePassword(Input,1).then(function(res){
                 if(res.result == "修改成功"){
-                    $timeout(function(){$state.go('main.data');} , 500);
+                    $timeout(function(){$state.go('main');} , 500);
                 }
                 else{
 
@@ -341,14 +374,15 @@
                 // if(res){
                 //     $timeout(function(){$state.go('main.data');} , 500);
                 // }
-            })
-
         })
+
     }
+
 }])
 
 
 .controller('ChangePasswordCtrl',['UserService','$scope','$state','Storage', '$timeout', function(UserService,$scope,$state,Storage,$timeout){
+
 
     $scope.Input = {
         password:'',
@@ -367,10 +401,10 @@
             return
         }
 
-        UserService.ChangePassword(Input).then(function(res){
+        UserService.ChangePassword(Input,0).then(function(res){
             if(res.result == "修改成功"){
                 $scope.status = "修改成功";
-                $timeout(function(){$state.go('main.data');} , 500);
+                $timeout(function(){$state.go('login');} , 500);
             }
             else{
                 $scope.status = "修改失败";
@@ -387,6 +421,7 @@
 
 
     $scope.onClickLogOut = function(){
+
         Storage.rm("UID");
         $state.go("login");
     }
@@ -396,19 +431,629 @@
 
     $scope.info = {};
     $scope.status = "正在载入个人信息";
-    UserService.GetUserInfo(Storage.get("UID")).then(function(data){
+    $scope.forDisplay = [];
+    var names = ["姓名","角色","上次登录时间"];
+    var index = ["UserName","Role","LastLoginTime"];
+    var list = [];
+    UserService.GetUserInfo(index).then(function(data){
         data = data.toJSON();
         var t = "";
         for(i in data){
             t = t + data[i];
         }
         data = t;
-        console.log(data);
+        data = data.split("|");
+
+        if (data.length != index.length){
+            $scope.status = "载入个人信息失败，请刷新";
+        }
+        else{
+            $scope.status = "天天好心情";
+        }
+
+
+        for (var i=0;i<=index.length-1;i++){
+
+            $scope.forDisplay[i] = {
+                k : names[i],
+                v : data[i]
+            }
+
+
+        }
+
+        console.log($scope.forDisplay)
     })
 }])
 
-    .controller('analysisCtrl',['$scope','$sce', 'CONFIG', 'deckInfoDetail', 'Info', 'MstUser', 'TrnOrderingSurgery',
-  function($scope,$sce,CONFIG,deckInfoDetail,Info,MstUser,TrnOrderingSurgery){
+.controller('RealTimeCtrl',['UserService','$scope','$state','Storage', '$timeout', 'SocketService', function(UserService, $scope, $state, Storage, $timeout, SocketService){
+
+
+    $scope.status = "No Connection";
+
+
+    SocketService.on('connect', function(){
+        // console.log('Connected');
+        $scope.status = "Connected"
+    });
+
+    SocketService.on('disconnect',function(){
+        $scope.status = "No Connection"
+    });
+
+    SocketService.on('message', function(data){
+        // console.log(data);
+        $scope.status = "Connected";
+        var myChart = echarts.init(document.getElementById('main'));
+        myChart.showLoading();
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: $scope.text
+            },
+            tooltip: {},
+            legend: {
+                data:['params']
+            },
+            xAxis: {
+                data: []
+            },
+            yAxis: {},
+            series: [{
+                name: '销量',
+                type: 'line',
+                data: data.data
+            }]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+        myChart.hideLoading();
+    });
+
+
+    $scope.isolator1 = {
+        name: "进料区",
+        env_names: ["进料区温度","进料区湿度","进料区压力","进料区风速","进料区过氧化氢浓度"],
+        env_codes:["1","2","3","4","5"],
+        env_status:[1,1,1,1,1],
+        instr_names:[
+            "进料区灭菌器",
+
+            "进料区与进料待加工区之间的门",
+            "进料区导轨"
+
+
+        ],
+        instr_codes:[
+            "1","2","3","4","5","6","7","8","9","10","11"
+        ],
+        instr_status:[
+            "1","2","3","4","5","6","7","8","9","10","11"
+        ]
+
+
+    };
+
+    $scope.isolator2 = {
+        name: "进料待加工区",
+        env_names: ["进料待加工区温度","进料待加工区湿度","进料待加工区压力","进料待加工区风速","进料待加工区过氧化氢浓度"],
+        env_codes:["1","2","3","4","5"],
+        env_status:[1,1,1,1,1],
+        instr_names:[
+
+            "进料待加工区灭菌器",
+            "加工区灭菌器",
+            "待出料区灭菌器",
+
+
+
+
+
+        ],
+        instr_codes:[
+            "1","2","3","4","5","6","7","8","9","10","11"
+        ],
+        instr_status:[
+            "1","2","3","4","5","6","7","8","9","10","11"
+        ]
+
+
+    };
+
+    $scope.isolator3 = {
+        name: "加工区",
+        env_names: ["加工区温度","加工区湿度","加工区压力","加工区风速","加工区过氧化氢浓度"],
+        env_codes:["1","2","3","4","5"],
+        env_status:[1,1,1,1,1],
+        instr_names:[
+
+
+            "加工区灭菌器",
+
+
+
+            "出料区导轨",
+            "待出料区与出料区之间的门"
+
+        ],
+        instr_codes:[
+            "1","2","3","4","5","6","7","8","9","10","11"
+        ],
+        instr_status:[
+            "1","2","3","4","5","6","7","8","9","10","11"
+        ]
+
+
+    };
+
+    $scope.isolator4 = {
+        name: "待出料区",
+        env_names: ["待出料区温度","待出料区湿度","待出料区压力","待出料区风速","待出料区过氧化氢浓度"],
+        env_codes:["1","2","3","4","5"],
+        env_status:[1,1,1,1,1],
+        instr_names:[
+
+            "待出料区灭菌器",
+
+
+
+            "待出料区与出料区之间的门"
+
+        ],
+        instr_codes:[
+            "1","2","3","4","5","6","7","8","9","10","11"
+        ],
+        instr_status:[
+            "1","2","3","4","5","6","7","8","9","10","11"
+        ]
+
+
+    };
+    $scope.isolator5 = {
+        name: "出料区",
+        env_names: ["出料区温度","出料区湿度","出料区压力","出料区风速","出料区过氧化氢浓度"],
+        env_codes:["1","2","3","4","5"],
+        env_status:[1,1,1,1,1],
+        instr_names:[
+
+            "出料区灭菌器",
+
+
+            "出料区导轨"
+
+        ],
+        instr_codes:[
+            "1","2","3","4","5","6","7","8","9","10","11"
+        ],
+        instr_status:[
+            "1","2","3","4","5","6","7","8","9","10","11"
+        ]
+
+
+    };
+
+    $scope.isolator = {
+        name: "出料区",
+        env_names: ["温度","湿度","压力","风速","过氧化氢浓度"],
+        env_codes:["1","2","3","4","5"],
+        env_status:[1,1,1,1,1],
+        instr_names:[
+            "进料区灭菌器",
+            "进料待加工区灭菌器",
+            "加工区灭菌器",
+            "待出料区灭菌器",
+            "出料区灭菌器",
+            "进料区与进料待加工区之间的门",
+            "进料区导轨",
+            "加工区导轨",
+            "出料区导轨",
+            "待出料区与出料区之间的门",
+            "机械臂"
+        ],
+        instr_codes:[
+            "1","2","3","4","5","6","7","8","9","10","11"
+        ],
+        instr_status:[
+            "1","2","3","4","5","6","7","8","9","10","11"
+        ]
+
+
+    };
+    $scope.incubator = {
+        name: "培养箱",
+        env_names: ["培养箱温度"],
+        env_codes:["1"],
+        env_status: ["35 ℃"],
+        instr_names:[
+            "培养箱门",
+            "上层外圈转盘",
+            "上层内圈转盘",
+            "下层外圈转盘",
+            "下层内圈转盘",
+            "顶空电源",
+            "视觉光源",
+            "工业相机",
+            "顶空分析",
+            "支架电机"
+        ],
+        instr_codes:["1","2","3","4","5","6","7","8","9","10"],
+        instr_status:[
+            "1","2","3","4","5","6","7","8","9","10"
+        ]
+    };
+
+    $scope.printcode = function(code,name){
+        // console.log(code);
+        SocketService.emit('get params',code);
+        $scope.text = name;
+    }
+
 
 }])
+
+
+.controller('MonitorCtrl',['UserService','$scope','$state','Storage', '$timeout', 'SocketService', function(UserService, $scope, $state, Storage, $timeout, SocketService){
+
+
+        $scope.status = "No Connection";
+        $scope.flag = false;
+        SocketService.on('connect', function(){
+            // console.log('Connected');
+            $scope.status = "Connected";
+            // SocketService.emit("get workflow");
+        });
+
+        SocketService.on('disconnect',function(){
+            $scope.status = "No Connection"
+        });
+
+        SocketService.on('workflow', function(data){
+
+            // $scope.operationName = data.operations;
+            // $scope.operationCode = data.operationCode;
+            // $scope.instrument = data.instrument;
+            // $scope.instrumentCode = data.instrumentCode;
+            $scope.data = data;
+            console.log("already");
+            console.log($scope.data.operationName);
+            $scope.flag = true;
+        });
+
+        SocketService.on('message', function(data){
+            // console.log(data);
+            $scope.status = "Connected";
+            var myChart = echarts.init(document.getElementById('main'));
+            myChart.showLoading();
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: $scope.text
+                },
+                tooltip: {},
+                legend: {
+                    data:['params']
+                },
+                xAxis: {
+                    data: []
+                },
+                yAxis: {},
+                series: [{
+                    name: '销量',
+                    type: 'line',
+                    data: data.data
+                }]
+            };
+
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+            myChart.hideLoading();
+        });
+
+
+        $scope.isolator = {
+            name: "出料区",
+            env_names: ["温度","湿度","压力","风速","过氧化氢浓度"],
+            env_codes:["1","2","3","4","5"],
+            env_status:[1,1,1,1,1],
+            instr_names:[
+                "进料区灭菌器",
+                "进料待加工区灭菌器",
+                "加工区灭菌器",
+                "待出料区灭菌器",
+                "出料区灭菌器",
+                "进料区与进料待加工区之间的门",
+                "进料区导轨",
+                "加工区导轨",
+                "出料区导轨",
+                "待出料区与出料区之间的门",
+                "机械臂"
+            ],
+            instr_codes:[
+                "1","2","3","4","5","6","7","8","9","10","11"
+            ],
+            instr_status:[
+                "1","2","3","4","5","6","7","8","9","10","11"
+            ]
+
+
+        };
+        $scope.incubator = {
+            name: "培养箱",
+            env_names: ["培养箱温度"],
+            env_codes:["1"],
+            env_status: ["35 ℃"],
+            instr_names:[
+                "培养箱门",
+                "上层外圈转盘",
+                "上层内圈转盘",
+                "下层外圈转盘",
+                "下层内圈转盘",
+                "顶空电源",
+                "视觉光源",
+                "工业相机",
+                "顶空分析",
+                "支架电机"
+            ],
+            instr_codes:["1","2","3","4","5","6","7","8","9","10"],
+            instr_status:[
+                "1","2","3","4","5","6","7","8","9","10"
+            ]
+        };
+
+        $scope.printcode = function(code,name){
+            // console.log(code);
+            SocketService.emit('get params',code);
+            $scope.text = name;
+        }
+
+        $scope.getWorkflow = function(){
+            SocketService.emit('get workflow',"1");
+            console.log("emited")
+        }
+    }])
+
+// 样品信息表--张桠童
+.controller('samplingCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams',
+    function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams){
+        // $scope.sampleQuery = {"ObjectNo": null,
+        //                   "ObjCompany": null,
+        //                   "ObjIncuSeq": null,
+        //                   "ObjectName": null,
+        //                   "ObjectType": null,
+        //                   "SamplingPeople": null,
+        //                   "SamplingTimeS": null,
+        //                   "SamplingTimeE": null,
+        //                   "SamplingWay": null,
+        //                   "SamplingTool": null,
+        //                   "SamAmount": null,
+        //                   "DevideWay": null,
+        //                   "SamContain": null,
+        //                   "Warning": null,
+        //                   "SamSave": null,
+        //                   "ReDateTimeS": null,
+        //                   "ReDateTimeE": null,
+        //                   "ReTerminalIP": null,
+        //                   "ReTerminalName": null,
+        //                   "ReUserId": null,
+        //                   "ReIdentify": null,
+        //                   "GetObjectName": 1,
+        //                   "GetObjectType": 1,
+        //                   "GetSamplingPeople": 1,
+        //                   "GetSamplingTime": 1,
+        //                   "GetSamplingWay": 1,
+        //                   "GetSamplingTool": 1,
+        //                   "GetSamAmount": 1,
+        //                   "GetDevideWay": 1,
+        //                   "GetSamContain": 1,
+        //                   "GetWarning": 1,
+        //                   "GetSamSave": 1,
+        //                   "GetRevisionInfo": 1};
+        // $scope.sampleInfo = {};
+        // var promise = ItemInfo.GetSamplesInfo($scope.sampleQuery);
+        // promise.then(function(data){
+        //   $scope.sampleInfo = data;
+        //   console.log(data);
+        // },function(err){});
+
+        var sampleQuery = {"ObjectNo": null,
+            "ObjCompany": null,
+            "ObjIncuSeq": null,
+            "ObjectName": null,
+            "ObjectType": null,
+            "SamplingPeople": null,
+            "SamplingTimeS": null,
+            "SamplingTimeE": null,
+            "SamplingWay": null,
+            "SamplingTool": null,
+            "SamAmount": null,
+            "DevideWay": null,
+            "SamContain": null,
+            "Warning": null,
+            "SamSave": null,
+            "ReDateTimeS": null,
+            "ReDateTimeE": null,
+            "ReTerminalIP": null,
+            "ReTerminalName": null,
+            "ReUserId": null,
+            "ReIdentify": null,
+            "GetObjectName": 1,
+            "GetObjectType": 1,
+            "GetSamplingPeople": 1,
+            "GetSamplingTime": 1,
+            "GetSamplingWay": 1,
+            "GetSamplingTool": 1,
+            "GetSamAmount": 1,
+            "GetDevideWay": 1,
+            "GetSamContain": 1,
+            "GetWarning": 1,
+            "GetSamSave": 1,
+            "GetRevisionInfo": 1};
+        var promise = ItemInfo.GetSamplesInfo(sampleQuery);
+        promise.then(function(data){
+            var sampleInfo = data;
+            // console.log(sampleInfo);
+            $scope.tableParams = new NgTableParams({count:5
+                },
+                { counts:[],
+                    dataset: sampleInfo
+                });
+        },function(err){});
+    }])
+// 检测结果表--张桠童
+.controller('testResultCtrl',['$scope','CONFIG','Storage','Data','Result','NgTableParams',
+    function($scope,CONFIG,Storage,Data,Result,NgTableParams){
+        var testResultQuery = {
+            "TestId": null,
+            "ObjectNo": null,
+            "ObjCompany": null,
+            "ObjIncuSeq": null,
+            "TestType": null,
+            "TestStand": null,
+            "TestEquip": null,
+            "Description": null,
+            "CollectStartS": null,
+            "CollectStartE": null,
+            "CollectEndS": null,
+            "CollectEndE": null,
+            "TestTimeS": null,
+            "TestTimeE": null,
+            "TestResult": null,
+            "TestPeople": null,
+            "ReStatus": null,
+            "RePeople": null,
+            "ReTimeS": null,
+            "ReTimeE": null,
+            "ReDateTimeS": null,
+            "ReDateTimeE": null,
+            "ReTerminalIP": null,
+            "ReTerminalName": null,
+            "ReUserId": null,
+            "ReIdentify": null,
+            "GetObjectNo": 1,
+            "GetObjCompany": 1,
+            "GetObjIncuSeq": 1,
+            "GetTestType": 1,
+            "GetTestStand": 1,
+            "GetTestEquip": 1,
+            "GetDescription": 1,
+            "GetCollectStart": 1,
+            "GetCollectEnd": 1,
+            "GetTestTime": 1,
+            "GetTestResult": 1,
+            "GetTestPeople": 1,
+            "GetReStatus": 1,
+            "GetRePeople": 1,
+            "GetReTime": 1,
+            "GetRevisionInfo": 1
+        };
+        var promise = Result.GetTestResultInfo(testResultQuery);
+        promise.then(function(data){
+            var testResult = data;
+            // console.log(testResult);
+            $scope.tableParams = new NgTableParams({count:5
+                },
+                { counts:[],
+                    dataset: testResult
+                });
+        },function(err){});
+    }])
+// 试剂信息表--张桠童
+.controller('reagentCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams',
+    function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams){
+        var ReagentsQuery = {
+            "ReagentId": null,
+            "ProductDayS": null,
+            "ProductDayE": null,
+            "ReagentType": null,
+            "ExpiryDayS": null,
+            "ExpiryDayE": null,
+            "ReagentName": null,
+            "ReagentTest": null,
+            "SaveCondition": null,
+            "Description": null,
+            "ReDateTimeS": null,
+            "ReDateTimeE": null,
+            "ReTerminalIP": null,
+            "ReTerminalName": null,
+            "ReUserId": null,
+            "ReIdentify": null,
+            "GetProductDay": 1,
+            "GetReagentType": 1,
+            "GetExpiryDay": 1,
+            "GetReagentName": 1,
+            "GetReagentTest": 1,
+            "GetSaveCondition": 1,
+            "GetDescription": 1,
+            "GetRevisionInfo": 1
+        };
+        var promise = ItemInfo.GetReagentsInfo(ReagentsQuery);
+        promise.then(function(data){
+            var Reagents = data;
+            // console.log(Reagents);
+            $scope.tableParams = new NgTableParams({count:5
+                },
+                { counts:[],
+                    dataset: Reagents
+                });
+        },function(err){});
+    }])
+// 仪器信息表--张桠童
+.controller('instrumentCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams',
+    function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams){
+        var IsolatorsQuery = {
+            "IsolatorId": null,
+            "ProductDayS": null,
+            "ProductDayE": null,
+            "EquipPro": null,
+            "InsDescription": null,
+            "ReDateTimeS": null,
+            "ReDateTimeE": null,
+            "ReTerminalIP": null,
+            "ReTerminalName": null,
+            "ReUserId": null,
+            "ReIdentify": null,
+            "GetProductDay": 1,
+            "GetEquipPro": 1,
+            "GetInsDescription": 1,
+            "GetRevisionInfo": 1
+        };
+        var promise1 = ItemInfo.GetIsolatorsInfo(IsolatorsQuery);
+        promise1.then(function(data){
+            var Isolators = data;
+            // console.log(Isolators);
+            $scope.tableParams1 = new NgTableParams({count:5
+                },
+                { counts:[],
+                    dataset: Isolators
+                });
+        },function(err){});
+        var IncubatorsQuery = {
+            "IncubatorId": null,
+            "ProductDayS": null,
+            "ProductDayE": null,
+            "EquipPro": null,
+            "InsDescription": null,
+            "ReDateTimeS": null,
+            "ReDateTimeE": null,
+            "ReTerminalIP": null,
+            "ReTerminalName": null,
+            "ReUserId": null,
+            "ReIdentify": null,
+            "GetProductDay": 1,
+            "GetEquipPro": 1,
+            "GetInsDescription": 1,
+            "GetRevisionInfo": 1
+        };
+        var promise2 = ItemInfo.GetIncubatorsInfo(IncubatorsQuery);
+        promise2.then(function(data){
+            var Incubators = data;
+            // console.log(Incubators);
+            $scope.tableParams2 = new NgTableParams({count:5
+                },
+                { counts:[],
+                    dataset: Incubators
+                });
+        },function(err){});
+    }])
 

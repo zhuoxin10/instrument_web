@@ -1,80 +1,48 @@
-<div class="col-lg-10">
-<p>只对检测结果汇总 </p>
-	<div class="table-responsive">
-		<table class="table table-striped">
-      <thead>
-        <tr>
-          <th>检测编号</th>
-          <th>产品编号</th>
-          <th>供应商</th>
-          <th>培养批次</th>
-          <th>检测类型</th>
-          <th>检测标准</th>
-          <th>使用仪器</th>
-          <th>检测过程</th>
-          <th>检测时间</th>
-          <th>检测结果</th>
-          <th>检测人员</th>
-          <th>是否复核</th>
-          <th>复核人员</th>
-          <th>复核时间</th>
-          <th>更新记录</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>检1</td>
-          <td>产品1</td>
-          <td>A供应商</td>
-          <td>第一批</td>
-          <td>无菌检查</td>
-          <td>1,001</td>
-          <td>隔离器</td>
-          <td>ipsum</td>
-          <td>2016.07.08</td>
-          <td>无菌</td>
-          <td>检测员1</td>
-          <td>否</td>
-          <td>检测员2</td>
-          <td>-</td>
-          <td>2016.07.08</td>
-        </tr>
-        <tr>
-          <td>检2</td>
-          <td>产品2</td>
-          <td>A供应商</td>
-          <td>第一批</td>
-          <td>无菌检查</td>
-          <td>1,001</td>
-          <td>隔离器</td>
-          <td>ipsum</td>
-          <td>2016.07.08</td>
-          <td>有菌</td>
-          <td>检测员1</td>
-          <td>是</td>
-          <td>检测员2</td>
-          <td>2016.09.06</td>
-          <td>2016.09.06</td>
-        </tr>
-        <tr>
-          <td>检3</td>
-          <td>产品3</td>
-          <td>A供应商</td>
-          <td>第一批</td>
-          <td>无菌检查</td>
-          <td>1,001</td>
-          <td>培养箱</td>
-          <td>ipsum</td>
-          <td>2016.07.08</td>
-          <td>有菌</td>
-          <td>检测员2</td>
-          <td>是</td>
-          <td>检测员2</td>
-          <td>2016.09.06</td>
-          <td>2016.09.06</td>
-        </tr>            
-      </tbody>
-		</table>
-	</div>
-
+<div class="tab-pane fade in active" id="testResult">
+  <div class="col-lg-10">
+    <table ng-table="tableParams" class="table" show-filter="true">
+      <tr ng-repeat="user in $data">
+        <td title="'检测编号'" filter="{ TestId: 'text'}" sortable="'TestId'">
+            {{user.TestId}}</td>
+        <td title="'产品编号'" filter="{ ObjectNo: 'text'}" sortable="'ObjectNo'">
+            {{user.ObjectNo}}</td>
+        <td title="'供应商'" filter="{ ObjCompany: 'text'}" sortable="'ObjCompany'">
+            {{user.ObjCompany}}</td>
+        <td title="'培养批次'" filter="{ ObjIncuSeq: 'text'}" sortable="'ObjIncuSeq'">
+            {{user.ObjIncuSeq}}</td>
+        <td title="'检测类型'" filter="{ TestType: 'text'}" sortable="'TestType'">
+            {{user.TestType}}</td>
+        <td title="'检测标准'" filter="{ TestStand: 'text'}" sortable="'TestStand'">
+            {{user.TestStand}}</td>
+        <td title="'使用仪器'" filter="{ TestEquip: 'text'}" sortable="'TestEquip'">
+            {{user.TestEquip}}</td>
+        <td title="'检测过程'" filter="{ Description: 'text'}" sortable="'Description'">
+            {{user.Description}}</td>
+        <td title="'集菌开始'" filter="{ CollectStart: 'text'}" sortable="'CollectStart'">
+            {{user.CollectStart}}</td>
+        <td title="'集菌结束'" filter="{ CollectEnd: 'text'}" sortable="'CollectEnd'">
+            {{user.CollectEnd}}</td>
+        <td title="'检测时间'" filter="{ TestTime: 'text'}" sortable="'TestTime'">
+            {{user.TestTime}}</td>
+        <td title="'检测结果'" filter="{ TestResult: 'text'}" sortable="'TestResult'">
+            {{user.TestResult}}</td>
+        <td title="'检测人员'" filter="{ TestPeople: 'text'}" sortable="'TestPeople'">
+            {{user.TestPeople}}</td>
+        <td title="'是否复核'" filter="{ ReStatus: 'text'}" sortable="'ReStatus'">
+            {{user.ReStatus}}</td>
+        <td title="'复核人员'" filter="{ RePeople: 'text'}" sortable="'RePeople'">
+            {{user.RePeople}}</td>
+        <td title="'复核时间'" filter="{ ReTime: 'text'}" sortable="'ReTime'">
+            {{user.ReTime}}</td>
+        <td title="'更新记录'" filter="{ revDateTime: 'text'}" sortable="'revDateTime'">
+            <a href="" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="更新记录" data-content="更新时间：{{user.revDateTime}}<br>终端IP：{{user.TerminalIP}}<br>终端名字：{{user.TerminalName}}<br>用户名：{{user.revUserId}}<br>身份证：{{user.revIdentify}}">{{user.revDateTime}}</a></td>
+      </tr>
+    </table>
+  </div>
 </div>
+
+<script>
+  $(function () { 
+    $("#popover1").popover(); 
+  });
+</script>
