@@ -412,6 +412,10 @@
         })
 
 
+    };
+
+    $scope.back = function(){
+        $state.go('main.data.sampling');
     }
 }])
 
