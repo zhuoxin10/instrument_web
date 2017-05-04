@@ -60,7 +60,7 @@
                           //     console.log(data.result.split('|'))
                           // });
                           // 跳转到主页
-                          $timeout(function(){$state.go('main');} , 500);
+                          $timeout(function(){$state.go('main.data.sampling');} , 500);
 
                       }
                       else{
@@ -288,7 +288,7 @@
         UserService.RegisterUser(registerInfo).then(function(data){
             // console.log(data);
             if(data.result == "注册成功"){
-                $timeout(function(){$state.go('main');} , 500);
+                $timeout(function(){$state.go('main.data.sampling');} , 500);
                 $scope.status = "注册成功";
             }
             else{
@@ -366,7 +366,7 @@
 
             UserService.ChangePassword(Input,1).then(function(res){
                 if(res.result == "修改成功"){
-                    $timeout(function(){$state.go('main');} , 500);
+                    $timeout(function(){$state.go('main.data.sampling');} , 500);
                 }
                 else{
 
@@ -413,57 +413,6 @@
 
 
     }
-}])
-
-
-.controller('SettingsCtrl',['UserService','$scope','$state','Storage', '$timeout', function(UserService,$scope,$state,Storage,$timeout){
-
-
-
-    $scope.onClickLogOut = function(){
-
-        Storage.rm("UID");
-        $state.go("login");
-    }
-}])
-
-.controller('PersonalInfoCtrl',['UserService','$scope','$state','Storage', '$timeout', function(UserService,$scope,$state,Storage,$timeout){
-
-    $scope.info = {};
-    $scope.status = "正在载入个人信息";
-    $scope.forDisplay = [];
-    var names = ["姓名","角色","上次登录时间"];
-    var index = ["UserName","Role","LastLoginTime"];
-    var list = [];
-    UserService.GetUserInfo(index).then(function(data){
-        data = data.toJSON();
-        var t = "";
-        for(i in data){
-            t = t + data[i];
-        }
-        data = t;
-        data = data.split("|");
-
-        if (data.length != index.length){
-            $scope.status = "载入个人信息失败，请刷新";
-        }
-        else{
-            $scope.status = "天天好心情";
-        }
-
-
-        for (var i=0;i<=index.length-1;i++){
-
-            $scope.forDisplay[i] = {
-                k : names[i],
-                v : data[i]
-            }
-
-
-        }
-
-        console.log($scope.forDisplay)
-    })
 }])
 
 .controller('RealTimeCtrl',['UserService','$scope','$state','Storage', '$timeout', 'SocketService', function(UserService, $scope, $state, Storage, $timeout, SocketService){
@@ -813,247 +762,283 @@
         }
     }])
 
+// 主菜单栏(个人信息)--张桠童
+.controller('MainCtrl',['$scope','CONFIG','Storage','Data','UserService','NgTableParams','$state',
+  function($scope,CONFIG,Storage,Data,UserService,NgTableParams,$state){
+    $scope.userInfo = {};
+    var userInfoQuery = {
+        "UserId": Storage.get('UID'),
+        "Identify": 0,
+        "PhoneNo": 0,
+        "UserName": 1,
+        "Role": 1,
+        "Password": 0,
+        "LastLoginTime": 1,
+        "RevisionInfo": 0
+    };
+    var promise = UserService.GetUserInfo(userInfoQuery);
+    promise.then(function(data){
+        $scope.userInfo = data;
+        // console.log($scope.userInfo);
+    },function(err){});
+    $scope.toChangePW = function(){
+        $state.go('changePassword');
+    };
+    $scope.ifOut = function(){
+        $('#myModal1').modal('show');
+    };
+    $scope.toLogin = function(){
+        $('#myModal1').modal('hide').on('hidden.bs.modal', function () {
+            Storage.rm("UID");
+            $state.go("login");
+        });
+    };
+}])
 // 样品信息表--张桠童
-.controller('samplingCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams',
-    function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams){
-        // $scope.sampleQuery = {"ObjectNo": null,
-        //                   "ObjCompany": null,
-        //                   "ObjIncuSeq": null,
-        //                   "ObjectName": null,
-        //                   "ObjectType": null,
-        //                   "SamplingPeople": null,
-        //                   "SamplingTimeS": null,
-        //                   "SamplingTimeE": null,
-        //                   "SamplingWay": null,
-        //                   "SamplingTool": null,
-        //                   "SamAmount": null,
-        //                   "DevideWay": null,
-        //                   "SamContain": null,
-        //                   "Warning": null,
-        //                   "SamSave": null,
-        //                   "ReDateTimeS": null,
-        //                   "ReDateTimeE": null,
-        //                   "ReTerminalIP": null,
-        //                   "ReTerminalName": null,
-        //                   "ReUserId": null,
-        //                   "ReIdentify": null,
-        //                   "GetObjectName": 1,
-        //                   "GetObjectType": 1,
-        //                   "GetSamplingPeople": 1,
-        //                   "GetSamplingTime": 1,
-        //                   "GetSamplingWay": 1,
-        //                   "GetSamplingTool": 1,
-        //                   "GetSamAmount": 1,
-        //                   "GetDevideWay": 1,
-        //                   "GetSamContain": 1,
-        //                   "GetWarning": 1,
-        //                   "GetSamSave": 1,
-        //                   "GetRevisionInfo": 1};
-        // $scope.sampleInfo = {};
-        // var promise = ItemInfo.GetSamplesInfo($scope.sampleQuery);
-        // promise.then(function(data){
-        //   $scope.sampleInfo = data;
-        //   console.log(data);
-        // },function(err){});
-
-        var sampleQuery = {"ObjectNo": null,
-            "ObjCompany": null,
-            "ObjIncuSeq": null,
-            "ObjectName": null,
-            "ObjectType": null,
-            "SamplingPeople": null,
-            "SamplingTimeS": null,
-            "SamplingTimeE": null,
-            "SamplingWay": null,
-            "SamplingTool": null,
-            "SamAmount": null,
-            "DevideWay": null,
-            "SamContain": null,
-            "Warning": null,
-            "SamSave": null,
-            "ReDateTimeS": null,
-            "ReDateTimeE": null,
-            "ReTerminalIP": null,
-            "ReTerminalName": null,
-            "ReUserId": null,
-            "ReIdentify": null,
-            "GetObjectName": 1,
-            "GetObjectType": 1,
-            "GetSamplingPeople": 1,
-            "GetSamplingTime": 1,
-            "GetSamplingWay": 1,
-            "GetSamplingTool": 1,
-            "GetSamAmount": 1,
-            "GetDevideWay": 1,
-            "GetSamContain": 1,
-            "GetWarning": 1,
-            "GetSamSave": 1,
-            "GetRevisionInfo": 1};
-        var promise = ItemInfo.GetSamplesInfo(sampleQuery);
-        promise.then(function(data){
-            var sampleInfo = data;
-            // console.log(sampleInfo);
-            $scope.tableParams = new NgTableParams({count:5
-                },
-                { counts:[],
-                    dataset: sampleInfo
-                });
-        },function(err){});
-    }])
+.controller('samplingCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams','$state',
+  function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams,$state){
+    var sampleQuery = {"ObjectNo": null,
+        "ObjCompany": null,
+        "ObjIncuSeq": null,
+        "ObjectName": null,
+        "ObjectType": null,
+        "SamplingPeople": null,
+        "SamplingTimeS": null,
+        "SamplingTimeE": null,
+        "SamplingWay": null,
+        "SamplingTool": null,
+        "SamAmount": null,
+        "DevideWay": null,
+        "SamContain": null,
+        "Warning": null,
+        "SamSave": null,
+        "ReDateTimeS": null,
+        "ReDateTimeE": null,
+        "ReTerminalIP": null,
+        "ReTerminalName": null,
+        "ReUserId": null,
+        "ReIdentify": null,
+        "GetObjectName": 1,
+        "GetObjectType": 1,
+        "GetSamplingPeople": 1,
+        "GetSamplingTime": 1,
+        "GetSamplingWay": 1,
+        "GetSamplingTool": 1,
+        "GetSamAmount": 1,
+        "GetDevideWay": 1,
+        "GetSamContain": 1,
+        "GetWarning": 1,
+        "GetSamSave": 1,
+        "GetRevisionInfo": 1};
+    var promise = ItemInfo.GetSamplesInfo(sampleQuery);
+    promise.then(function(data){
+        var sampleInfo = data;
+        // console.log(sampleInfo);
+        $scope.tableParams = new NgTableParams({
+                count:5
+            },
+            {   counts:[],
+                dataset: sampleInfo
+            });
+    },function(err){});
+    $scope.toTestResult = function(ObjectNo,ObjCompany,ObjIncuSeq){
+      $state.go('main.data.testResult');
+      Storage.set('ObjectNo', ObjectNo);
+      Storage.set('ObjCompany', ObjCompany);
+      Storage.set('ObjIncuSeq', ObjIncuSeq);
+    }
+}])
 // 检测结果表--张桠童
-.controller('testResultCtrl',['$scope','CONFIG','Storage','Data','Result','NgTableParams',
-    function($scope,CONFIG,Storage,Data,Result,NgTableParams){
-        var testResultQuery = {
-            "TestId": null,
-            "ObjectNo": null,
-            "ObjCompany": null,
-            "ObjIncuSeq": null,
-            "TestType": null,
-            "TestStand": null,
-            "TestEquip": null,
-            "Description": null,
-            "CollectStartS": null,
-            "CollectStartE": null,
-            "CollectEndS": null,
-            "CollectEndE": null,
-            "TestTimeS": null,
-            "TestTimeE": null,
-            "TestResult": null,
-            "TestPeople": null,
-            "ReStatus": null,
-            "RePeople": null,
-            "ReTimeS": null,
-            "ReTimeE": null,
-            "ReDateTimeS": null,
-            "ReDateTimeE": null,
-            "ReTerminalIP": null,
-            "ReTerminalName": null,
-            "ReUserId": null,
-            "ReIdentify": null,
-            "GetObjectNo": 1,
-            "GetObjCompany": 1,
-            "GetObjIncuSeq": 1,
-            "GetTestType": 1,
-            "GetTestStand": 1,
-            "GetTestEquip": 1,
-            "GetDescription": 1,
-            "GetCollectStart": 1,
-            "GetCollectEnd": 1,
-            "GetTestTime": 1,
-            "GetTestResult": 1,
-            "GetTestPeople": 1,
-            "GetReStatus": 1,
-            "GetRePeople": 1,
-            "GetReTime": 1,
-            "GetRevisionInfo": 1
-        };
-        var promise = Result.GetTestResultInfo(testResultQuery);
-        promise.then(function(data){
-            var testResult = data;
-            // console.log(testResult);
-            $scope.tableParams = new NgTableParams({count:5
-                },
-                { counts:[],
-                    dataset: testResult
-                });
-        },function(err){});
-    }])
+.controller('testResultCtrl',['$scope','CONFIG','Storage','Data','Result','NgTableParams','$timeout','$state',
+  function($scope,CONFIG,Storage,Data,Result,NgTableParams,$timeout,$state){
+    // console.log(Storage.get('ObjectNo'));
+    var testResultQuery = {
+      "TestId": null,
+      "ObjectNo": null,
+      "ObjCompany": null,
+      "ObjIncuSeq": null,
+      "TestType": null,
+      "TestStand": null,
+      "TestEquip": null,
+      "Description": null,
+      "CollectStartS": null,
+      "CollectStartE": null,
+      "CollectEndS": null,
+      "CollectEndE": null,
+      "TestTimeS": null,
+      "TestTimeE": null,
+      "TestResult": null,
+      "TestPeople": null,
+      "ReStatus": null,
+      "RePeople": null,
+      "ReTimeS": null,
+      "ReTimeE": null,
+      "ReDateTimeS": null,
+      "ReDateTimeE": null,
+      "ReTerminalIP": null,
+      "ReTerminalName": null,
+      "ReUserId": null,
+      "ReIdentify": null,
+      "GetObjectNo": 1,
+      "GetObjCompany": 1,
+      "GetObjIncuSeq": 1,
+      "GetTestType": 1,
+      "GetTestStand": 1,
+      "GetTestEquip": 1,
+      "GetDescription": 1,
+      "GetCollectStart": 1,
+      "GetCollectEnd": 1,
+      "GetTestTime": 1,
+      "GetTestResult": 1,
+      "GetTestPeople": 1,
+      "GetReStatus": 1,
+      "GetRePeople": 1,
+      "GetReTime": 1,
+      "GetRevisionInfo": 1
+    };
+    if (Storage.get('ObjectNo')==null) {
+      var promise = Result.GetTestResultInfo(testResultQuery);
+      promise.then(function(data){
+          var testResult = data;
+          // console.log(testResult);
+          $scope.tableParams = new NgTableParams({
+                count:5,
+            },
+            {   counts:[],
+                dataset: testResult
+            });
+      },function(err){});
+    }
+    else{
+      var promise = Result.GetTestResultInfo(testResultQuery);
+      promise.then(function(data){
+          var testResult = data;
+          // console.log(testResult);
+          $scope.tableParams = new NgTableParams({
+                count:5,
+                filter:{ ObjectNo: Storage.get('ObjectNo'),
+                         ObjCompany: Storage.get('ObjCompany'),
+                         ObjIncuSeq: Storage.get('ObjIncuSeq')
+                        },
+                sorting:{CollectStart:"desc"}
+                // 升序："asc"；降序："desc"
+            },
+            {   counts:[],
+                dataset: testResult
+            });
+          $timeout(function(){
+            // console.log($scope.tableParams.data.length);
+            if($scope.tableParams.data.length>0 && $scope.tableParams.data[0].TestResult==null){
+              $('#myModal').modal('show');
+            };
+          });
+      },function(err){});
+      $scope.toMonitors = function(){
+        $('#myModal').modal('hide').on('hidden.bs.modal', function () {
+            $state.go('main.monitors.realTime');
+        });
+      };
+    }
+}])
 // 试剂信息表--张桠童
 .controller('reagentCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams',
-    function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams){
-        var ReagentsQuery = {
-            "ReagentId": null,
-            "ProductDayS": null,
-            "ProductDayE": null,
-            "ReagentType": null,
-            "ExpiryDayS": null,
-            "ExpiryDayE": null,
-            "ReagentName": null,
-            "ReagentTest": null,
-            "SaveCondition": null,
-            "Description": null,
-            "ReDateTimeS": null,
-            "ReDateTimeE": null,
-            "ReTerminalIP": null,
-            "ReTerminalName": null,
-            "ReUserId": null,
-            "ReIdentify": null,
-            "GetProductDay": 1,
-            "GetReagentType": 1,
-            "GetExpiryDay": 1,
-            "GetReagentName": 1,
-            "GetReagentTest": 1,
-            "GetSaveCondition": 1,
-            "GetDescription": 1,
-            "GetRevisionInfo": 1
-        };
-        var promise = ItemInfo.GetReagentsInfo(ReagentsQuery);
-        promise.then(function(data){
-            var Reagents = data;
-            // console.log(Reagents);
-            $scope.tableParams = new NgTableParams({count:5
-                },
-                { counts:[],
-                    dataset: Reagents
-                });
-        },function(err){});
-    }])
+  function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams){
+    var ReagentsQuery = {
+        "ReagentId": null,
+        "ProductDayS": null,
+        "ProductDayE": null,
+        "ReagentType": null,
+        "ExpiryDayS": null,
+        "ExpiryDayE": null,
+        "ReagentName": null,
+        "ReagentTest": null,
+        "SaveCondition": null,
+        "Description": null,
+        "ReDateTimeS": null,
+        "ReDateTimeE": null,
+        "ReTerminalIP": null,
+        "ReTerminalName": null,
+        "ReUserId": null,
+        "ReIdentify": null,
+        "GetProductDay": 1,
+        "GetReagentType": 1,
+        "GetExpiryDay": 1,
+        "GetReagentName": 1,
+        "GetReagentTest": 1,
+        "GetSaveCondition": 1,
+        "GetDescription": 1,
+        "GetRevisionInfo": 1
+    };
+    var promise = ItemInfo.GetReagentsInfo(ReagentsQuery);
+    promise.then(function(data){
+        var Reagents = data;
+        // console.log(Reagents);
+        $scope.tableParams = new NgTableParams({
+                count:5
+            },
+            {   counts:[],
+                dataset: Reagents
+            });
+    },function(err){});
+}])
 // 仪器信息表--张桠童
 .controller('instrumentCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams',
-    function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams){
-        var IsolatorsQuery = {
-            "IsolatorId": null,
-            "ProductDayS": null,
-            "ProductDayE": null,
-            "EquipPro": null,
-            "InsDescription": null,
-            "ReDateTimeS": null,
-            "ReDateTimeE": null,
-            "ReTerminalIP": null,
-            "ReTerminalName": null,
-            "ReUserId": null,
-            "ReIdentify": null,
-            "GetProductDay": 1,
-            "GetEquipPro": 1,
-            "GetInsDescription": 1,
-            "GetRevisionInfo": 1
-        };
-        var promise1 = ItemInfo.GetIsolatorsInfo(IsolatorsQuery);
-        promise1.then(function(data){
-            var Isolators = data;
-            // console.log(Isolators);
-            $scope.tableParams1 = new NgTableParams({count:5
-                },
-                { counts:[],
-                    dataset: Isolators
-                });
-        },function(err){});
-        var IncubatorsQuery = {
-            "IncubatorId": null,
-            "ProductDayS": null,
-            "ProductDayE": null,
-            "EquipPro": null,
-            "InsDescription": null,
-            "ReDateTimeS": null,
-            "ReDateTimeE": null,
-            "ReTerminalIP": null,
-            "ReTerminalName": null,
-            "ReUserId": null,
-            "ReIdentify": null,
-            "GetProductDay": 1,
-            "GetEquipPro": 1,
-            "GetInsDescription": 1,
-            "GetRevisionInfo": 1
-        };
-        var promise2 = ItemInfo.GetIncubatorsInfo(IncubatorsQuery);
-        promise2.then(function(data){
-            var Incubators = data;
-            // console.log(Incubators);
-            $scope.tableParams2 = new NgTableParams({count:5
-                },
-                { counts:[],
-                    dataset: Incubators
-                });
-        },function(err){});
-    }])
+  function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams){
+    var IsolatorsQuery = {
+        "IsolatorId": null,
+        "ProductDayS": null,
+        "ProductDayE": null,
+        "EquipPro": null,
+        "InsDescription": null,
+        "ReDateTimeS": null,
+        "ReDateTimeE": null,
+        "ReTerminalIP": null,
+        "ReTerminalName": null,
+        "ReUserId": null,
+        "ReIdentify": null,
+        "GetProductDay": 1,
+        "GetEquipPro": 1,
+        "GetInsDescription": 1,
+        "GetRevisionInfo": 1
+    };
+    var promise1 = ItemInfo.GetIsolatorsInfo(IsolatorsQuery);
+    promise1.then(function(data){
+        var Isolators = data;
+        // console.log(Isolators);
+        $scope.tableParams1 = new NgTableParams({
+                count:5
+            },
+            {   counts:[],
+                dataset: Isolators
+            });
+    },function(err){});
+    var IncubatorsQuery = {
+        "IncubatorId": null,
+        "ProductDayS": null,
+        "ProductDayE": null,
+        "EquipPro": null,
+        "InsDescription": null,
+        "ReDateTimeS": null,
+        "ReDateTimeE": null,
+        "ReTerminalIP": null,
+        "ReTerminalName": null,
+        "ReUserId": null,
+        "ReIdentify": null,
+        "GetProductDay": 1,
+        "GetEquipPro": 1,
+        "GetInsDescription": 1,
+        "GetRevisionInfo": 1
+    };
+    var promise2 = ItemInfo.GetIncubatorsInfo(IncubatorsQuery);
+    promise2.then(function(data){
+        var Incubators = data;
+        // console.log(Incubators);
+        $scope.tableParams2 = new NgTableParams({
+                count:5
+            },
+            {   counts:[],
+                dataset: Incubators
+            });
+    },function(err){});
+}])
 

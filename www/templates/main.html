@@ -1,19 +1,66 @@
-<div class="container-fluid">
-  <div style="position:fixed;background-color:#fff;width:100%;z-index:10">
-    <div style="display:inline;width:60%">
-      <h1 style="padding-top:20px;margin-left:8%">智能集菌检测系统</h1>
-    </div>
-    <div style="display:inline;width:40%" >
-      <ul id="mytabs" class="nav nav-tabs navbar-right navbar-fixed-top" style="padding-top:46px;padding-left:75%">
-          <li><a href="#data" data-toggle="tab">汇总数据</a> </li>
-          <li><a href="#monitors" data-toggle="tab">监控</a> </li>
-          <li><a href="#settings" data-toggle="tab">设置</a> </li>
-      </ul>
-    </div>
+<div class="container-fluid" style="min-width:1450px;padding-right:0px;padding-left: 0px; ">
+  <h1 style="margin-left: 20px; margin-top: 20px; position: absolute;">智能集菌检测系统</h1>
+  <div style="margin-top: 40px">
+    <ul id="mytabs" class="nav nav-tabs" style="font-size: 15px">
+      <li class="navbar-right" style="margin-right:25px">
+        <a id="drop_info" class="navbar-brand" style="height:43px" data-toggle="dropdown">
+          <span class="glyphicon glyphicon-user"></span>
+        </a>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="drop_info" style="min-width:220px">
+          <li role="presentation">
+              <h4 style="margin-left:10px"><strong>个人信息</strong></h4>
+          </li>
+          <li role="presentation" class="divider"></li>
+          <li role="presentation" style="line-height:30px">
+            <span style="margin-left:10px"><strong>姓名：</strong></span>{{userInfo.UserName}}
+          </li>
+          <li role="presentation" style="line-height:30px">
+            <span style="margin-left:10px"><strong>角色：</strong></span>{{userInfo.Role}}
+          </li>
+          <li role="presentation" style="line-height:30px">
+            <span style="margin-left:10px"><strong>上次登录时间：</strong></span>
+          </li>
+          <li role="presentation" style="line-height:30px">
+            <span style="margin-left:10px">{{userInfo.LastLoginTime}}</span>
+          </li>
+          <li role="presentation">
+            <button class="btn btn-primary pull-left" style="margin-left:20px" ng-click="toChangePW()">修改密码</button>
+            <button class="btn btn-danger pull-right" style="margin-right:20px" ng-click="ifOut()">注销</button>
+          </li>
+        </ul>
+      </li>
+      <li class="navbar-right"><a href="#monitors" data-toggle="tab">监控</a> </li>
+      <li class="navbar-right"><a href="#data" data-toggle="tab">汇总数据</a> </li>
+    </ul>
   </div>
-  <div ui-view style="margin-top:110px"></div>
+  <div ui-view style="margin-top: 10px"></div>
 </div>
 
-<script>
+<script type="text/javascript">
   $('#mytabs a[href="#data"]').tab('show');
 </script>
+
+<div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    提示
+                </h4>
+            </div>
+            <div class="modal-body">
+                是否退出本应用？
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">否
+                </button>
+                <button type="button" class="btn btn-primary" ng-click="toLogin()">
+                    是
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>

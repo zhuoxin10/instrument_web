@@ -1,6 +1,5 @@
 <div class="tab-pane fade in active" id="testResult">
-  <div class="col-lg-10">
-    <table ng-table="tableParams" class="table" show-filter="true">
+    <table ng-table="tableParams" class="table table-condensed" show-filter="true">
       <tr ng-repeat="user in $data">
         <td title="'检测编号'" filter="{ TestId: 'text'}" sortable="'TestId'">
             {{user.TestId}}</td>
@@ -35,11 +34,36 @@
         <td title="'复核时间'" filter="{ ReTime: 'text'}" sortable="'ReTime'">
             {{user.ReTime}}</td>
         <td title="'更新记录'" filter="{ revDateTime: 'text'}" sortable="'revDateTime'">
-            <a href="" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="更新记录" data-content="更新时间：{{user.revDateTime}}<br>终端IP：{{user.TerminalIP}}<br>终端名字：{{user.TerminalName}}<br>用户名：{{user.revUserId}}<br>身份证：{{user.revIdentify}}">{{user.revDateTime}}</a></td>
+          <button type="button" class="btn btn-link" style="font-size:10px;text-decoration:none" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="更新记录" data-content="更新时间：{{user.revDateTime}}<br>终端IP：{{user.TerminalIP}}<br>终端名字：{{user.TerminalName}}<br>用户名：{{user.revUserId}}<br>身份证：{{user.revIdentify}}">{{user.revDateTime}}</button></td>
       </tr>
     </table>
-  </div>
+    <!-- <pre>{{tableParams.data}}</pre> -->
 </div>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    提示
+                </h4>
+            </div>
+            <div class="modal-body">
+                该样品正在检测中，是否跳转至监控页面？
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">留在本页
+                </button>
+                <button type="button" class="btn btn-primary" ng-click="toMonitors()">
+                    是
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>    
 
 <script>
   $(function () { 
