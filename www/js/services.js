@@ -66,6 +66,44 @@
      */
 })
 
+.factory('extraInfo',function(CONFIG){
+  return{
+    postInformation:function(){
+      var postInformation={};
+      if(window.localStorage['UserId']==null){
+        postInformation.revUserId = 'who'
+      }
+      else{
+        postInformation.revUserId = window.localStorage['UserId'];
+      }
+      
+      postInformation.TerminalIP = 'IP';
+      if(window.localStorage['TerminalName']==null){
+        postInformation.TerminalName = 'which';
+      }
+      else{
+        postInformation.TerminalName = window.localStorage['TerminalName'];
+      }
+      postInformation.DeviceType = 2;
+      return postInformation;
+    },
+    TerminalIP:function(data){
+      if(data==null)
+      {
+        return angular.fromJson(window.localStorage['TerminalIP']);
+      }else {
+        window.localStorage['TerminalIP'] = angular.toJson(data);
+      }},
+    TerminalName:function(data){
+      if(data==null)
+      {
+        return angular.fromJson(window.localStorage['TerminalName']);
+      }else {
+        window.localStorage['TerminalName'] = angular.toJson(data);
+      }},
+  
+  }
+})
 
 .factory('SocketService',['$rootScope','CONFIG', function($rootScope,CONFIG){
 
@@ -115,7 +153,8 @@
             UpdateUserInfo:{method:'POST',params:{route:'MstUserUpdateUserInfo'},timeout:10000},
             GetUserInfo:{method:'GET',params:{route:'MstUserGetUserInfo'}, timeout:10000},
             CreateNewUserId:{method:'GET',params:{route:'MstUserCreateNewUserId'},timeout:10000},
-            GetUserByPhoneNo:{method:'GET',params:{route:'MstUserGetUserByPhoneNo'},timeout:10000}
+            GetUserByPhoneNo:{method:'GET',params:{route:'MstUserGetUserByPhoneNo'},timeout:10000},
+            GetReagentType:{method:'GET',params:{route:'MstReagentTypeGetAll'},timeout:10000,isArray:true},
         })
     };
 
@@ -125,7 +164,10 @@
             GetSamplesInfo:{method:'POST',params:{route:'ItemSampleGetSamplesInfoByAnyProperty'},timeout:10000,isArray:true},
             GetReagentsInfo:{method:'POST',params:{route:'ItemReagentGetReagentsInfoByAnyProperty'},timeout:10000,isArray:true},
             GetIsolatorsInfo:{method:'POST',params:{route:'ItemIsolatorGetIsolatorsInfoByAnyProperty'},timeout:10000,isArray:true},
-            GetIncubatorsInfo:{method:'POST',params:{route:'ItemIncubatorGetIncubatorsInfoByAnyProperty'},timeout:10000,isArray:true}
+            GetIncubatorsInfo:{method:'POST',params:{route:'ItemIncubatorGetIncubatorsInfoByAnyProperty'},timeout:10000,isArray:true},
+            SetSampleData:{method:'POST',params:{route:'ItemSampleCreateNewSample'},timeout:10000,isArray:true},
+            CreateReagentId:{method:'GET',params:{route:'ItemReagentCreateReagentId',ReagentType:'@ReagentType'},timeout:10000},
+            SetReagentData:{method:'POST',params:{route:'ItemReagentSetData'},timeout:10000},
         })
     }
     // 检测结果-张桠童
@@ -307,6 +349,16 @@
             return deferred.promise;
         };
 
+        // 获取试剂类型--张桠童添加
+        serve.GetReagentType = function(){
+            var deferred = $q.defer();
+            Data.Users.GetReagentType(function(data,headers){
+                deferred.resolve(data);
+            },function(err){
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
 
         //登陆
 
@@ -411,6 +463,36 @@
     self.GetIncubatorsInfo = function(obj){
         var deferred = $q.defer();
         Data.ItemInfo.GetIncubatorsInfo(obj, function(data, headers){
+            deferred.resolve(data);
+        }, function(err){
+            deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    // 新建样品
+    self.SetSampleData = function(obj){
+        var deferred = $q.defer();
+        Data.ItemInfo.SetSampleData(obj, function(data, headers){
+            deferred.resolve(data);
+        }, function(err){
+            deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    // 创建试剂编号
+    self.CreateReagentId = function(ReagentType){
+        var deferred = $q.defer();
+        Data.ItemInfo.CreateReagentId({ReagentType:ReagentType}, function(data, headers){
+            deferred.resolve(data);
+        }, function(err){
+            deferred.reject(err);
+        });
+        return deferred.promise;
+    };
+    // 新建试剂
+    self.SetReagentData = function(obj){
+        var deferred = $q.defer();
+        Data.ItemInfo.SetReagentData(obj, function(data, headers){
             deferred.resolve(data);
         }, function(err){
             deferred.reject(err);
