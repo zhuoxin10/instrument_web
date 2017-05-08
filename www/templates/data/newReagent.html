@@ -1,0 +1,172 @@
+<div class="tab-pane fade in active" id="newReagent" style="margin-top:20px">
+
+    <form id="reagentForm" name="reagentForm" class="form-horizontal"
+        data-fv-framework="bootstrap"
+        data-fv-icon-valid="glyphicon glyphicon-ok"
+        data-fv-icon-invalid="glyphicon glyphicon-remove"
+        data-fv-icon-validating="glyphicon glyphicon-refresh">
+
+        <div class="form-group">
+            <label class="col-xs-3 control-label">生产日期</label>
+            <div class="col-xs-5 date">
+                <div class="input-group input-append date" id="datetimePicker_ProductDay">
+                    <input type="text" class="form-control" name="ProductDay" ng-model="reagent.ProductDay"
+                    data-fv-notempty="true"
+                    data-fv-notempty-message="该项为必填项" readonly/>
+                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-xs-3 control-label">试剂类型</label>
+            <div class="col-xs-5">
+                <select class="form-control" name="ReagentType" ng-model="reagent.ReagentType" ng-options="reagenttype.Type as reagenttype.Name for reagenttype in reagenttypes"
+                data-fv-notempty 
+                data-fv-notempty-message="该项为必填项">
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-xs-3 control-label">保质期</label>
+            <div class="col-xs-5 date">
+                <div class="input-group input-append date" id="datetimePicker_ExpiryDay">
+                    <input type="text" class="form-control" name="ExpiryDay" ng-model="reagent.ExpiryDay"
+                    data-fv-notempty="true"
+                    data-fv-notempty-message="该项为必填项" readonly/>
+                    <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-xs-3 control-label">试剂名字</label>
+            <div class="col-xs-5">
+                <input type="text" class="form-control" name="ReagentName" ng-model="reagent.ReagentName"
+                    data-fv-notempty="true"
+                    data-fv-notempty-message="该项为必填项"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-xs-3 control-label">试剂适用性试验</label>
+            <div class="col-xs-5">
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="ReagentTest" ng-model="reagent.ReagentTest" value="不需要"
+                            data-fv-notempty="true"
+                            data-fv-notempty-message="该项为必填项" /> 不需要
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="ReagentTest" ng-model="reagent.ReagentTest" value="通过" /> 通过
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <input type="radio" name="ReagentTest" ng-model="reagent.ReagentTest" value="未通过" /> 未通过
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-xs-3 control-label">储存方法</label>
+            <div class="col-xs-5">
+                <input type="text" class="form-control" name="SaveCondition" ng-model="reagent.SaveCondition"
+                    data-fv-notempty="true"
+                    data-fv-notempty-message="该项为必填项"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-xs-3 control-label">冗余信息</label>
+            <div class="col-xs-5">
+                <input type="text" class="form-control" name="Description" ng-model="reagent.Description"/>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-xs-9 col-xs-offset-3">
+                <button type="submit" class="btn btn-primary" name="signup" value="Sign up" ng-click="test()">提交</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style type="text/css">
+  /**
+   * Override feedback icon position
+   * See http://formvalidation.io/examples/adjusting-feedback-icon-position/
+   */
+  #sampleForm .dateContainer .form-control-feedback {
+      top: 0;
+      right: -15px;
+  }
+</style>
+
+<script>
+$(function() {
+    // console.log(sample.ObjCompany);
+    $('#reagentForm').formValidation({
+        framework: 'bootstrap',
+        icon: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        }
+    })
+    .on('success.form.fv',function(e){
+        // Prevent form submission
+        e.preventDefault();
+        // var $form = $(e.target),
+        //     fv    = $(e.target).data('formValidation');
+
+        // var res = $(e.target).data('formValidation');
+
+        // // Do whatever you want here ...
+        // console.log(res);
+        // console.log($form.serialize());
+    });
+
+    $('#datetimePicker_ProductDay')
+    .datetimepicker({
+        format: 'yyyy-mm-dd hh:ii',
+        language:  'zh-CN',
+        pickerPosition: "bottom-left",
+        todayBtn:  true,
+        autoclose: true,
+        todayHighlight: true,
+        forceParse: 0,
+        minuteStep:1,
+        // minView:2,
+        initialDate:new Date()
+    });
+    $('#datetimePicker_ExpiryDay')
+    .datetimepicker({
+        format: 'yyyy-mm-dd hh:ii',
+        language:  'zh-CN',
+        pickerPosition: "bottom-left",
+        todayBtn:  true,
+        autoclose: true,
+        todayHighlight: true,
+        forceParse: 0,
+        minuteStep:1,
+        // minView:2,
+        initialDate:new Date()
+    });
+});
+</script>
+
+<div class="modal fade" id="Modal_newreagentDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p class="text-center">插入成功！</p>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>    

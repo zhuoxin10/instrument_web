@@ -799,8 +799,8 @@
     };
 }])
 // 样品信息表--张桠童
-.controller('samplingCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams','$state',
-  function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams,$state){
+.controller('samplingCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams','$state','extraInfo',
+  function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams,$state,extraInfo){
     var sampleQuery = {"ObjectNo": null,
         "ObjCompany": null,
         "ObjIncuSeq": null,
@@ -839,7 +839,7 @@
         var sampleInfo = data;
         // console.log(sampleInfo);
         $scope.tableParams = new NgTableParams({
-                count:5
+                count:10
             },
             {   counts:[],
                 dataset: sampleInfo
@@ -850,7 +850,40 @@
       Storage.set('ObjectNo', ObjectNo);
       Storage.set('ObjCompany', ObjCompany);
       Storage.set('ObjIncuSeq', ObjIncuSeq);
+    };
+}])
+// 新建样品--张桠童
+.controller('newSampleCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams','$state','extraInfo',
+  function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams,$state,extraInfo){
+    $scope.sample = {};
+    var getJsonLength=function(jsonData){
+        var jsonLength = 0;
+        for(var item in jsonData){
+            jsonLength++;
+        }
+        return jsonLength;
     }
+    $scope.test=function(){
+        var formLength = getJsonLength($scope.sample);
+        if(formLength==7){
+            $scope.sample.TerminalIP=extraInfo.postInformation().TerminalIP;
+            $scope.sample.TerminalName=extraInfo.postInformation().TerminalName;
+            $scope.sample.revUserId=extraInfo.postInformation().revUserId;
+            // console.log($scope.sample);
+            // console.log(formLength);
+            var promise = ItemInfo.SetSampleData($scope.sample);
+            promise.then(function(data){
+                console.log(data[0]);
+                if(data[0]=="插入成功"){
+                    $('#Modal_newSampleDialog').modal('show').on('shown.bs.modal', function(e){
+                        $('#Modal_newSampleDialog').modal('hide').on('hidden.bs.modal', function(e){
+                            $state.go('main.data.sampling');
+                        })
+                    });
+                }
+            },function(err){});
+        };
+    };
 }])
 // 检测结果表--张桠童
 .controller('testResultCtrl',['$scope','CONFIG','Storage','Data','Result','NgTableParams','$timeout','$state',
@@ -906,7 +939,7 @@
           var testResult = data;
           // console.log(testResult);
           $scope.tableParams = new NgTableParams({
-                count:5,
+                count:10,
             },
             {   counts:[],
                 dataset: testResult
@@ -919,7 +952,7 @@
           var testResult = data;
           // console.log(testResult);
           $scope.tableParams = new NgTableParams({
-                count:5,
+                count:10,
                 filter:{ ObjectNo: Storage.get('ObjectNo'),
                          ObjCompany: Storage.get('ObjCompany'),
                          ObjIncuSeq: Storage.get('ObjIncuSeq')
@@ -978,12 +1011,58 @@
         var Reagents = data;
         // console.log(Reagents);
         $scope.tableParams = new NgTableParams({
-                count:5
+                count:10
             },
             {   counts:[],
                 dataset: Reagents
             });
     },function(err){});
+}])
+// 新建试剂--张桠童
+.controller('newReagentCtrl',['$scope','CONFIG','Storage','Data','UserService','ItemInfo','NgTableParams','$state','extraInfo',
+  function($scope,CONFIG,Storage,Data,UserService,ItemInfo,NgTableParams,$state,extraInfo){
+    $scope.reagent = {};
+    $scope.reagenttypes = {};
+
+    var getJsonLength=function(jsonData){
+        var jsonLength = 0;
+        for(var item in jsonData){
+            jsonLength++;
+        }
+        return jsonLength;
+    };
+
+    var promise = UserService.GetReagentType();
+    promise.then(function(data){
+        // console.log(data);
+        $scope.reagenttypes = data;
+    },function(err){});
+
+    $scope.test=function(){
+        var formLength = getJsonLength($scope.reagent);
+        console.log(formLength);
+        if(formLength>=6){
+            $scope.reagent.TerminalIP=extraInfo.postInformation().TerminalIP;
+            $scope.reagent.TerminalName=extraInfo.postInformation().TerminalName;
+            $scope.reagent.revUserId=extraInfo.postInformation().revUserId;
+            var promise = ItemInfo.CreateReagentId($scope.reagent.ReagentType);
+            promise.then(function(data){
+                $scope.reagent.ReagentId = data.result;
+                console.log($scope.reagent);
+                var promise1 = ItemInfo.SetReagentData($scope.reagent);
+                promise1.then(function(data){
+                    // console.log(data);
+                    if(data.result=="插入成功"){
+                        $('#Modal_newreagentDialog').modal('show').on('shown.bs.modal', function(e){
+                            $('#Modal_newreagentDialog').modal('hide').on('hidden.bs.modal', function(e){
+                                $state.go('main.data.reagent');
+                            })
+                        });
+                    }
+                },function(err){});
+            },function(err){});
+        };
+    };
 }])
 // 仪器信息表--张桠童
 .controller('instrumentCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams',
@@ -1010,7 +1089,7 @@
         var Isolators = data;
         // console.log(Isolators);
         $scope.tableParams1 = new NgTableParams({
-                count:5
+                count:10
             },
             {   counts:[],
                 dataset: Isolators
@@ -1038,7 +1117,7 @@
         var Incubators = data;
         // console.log(Incubators);
         $scope.tableParams2 = new NgTableParams({
-                count:5
+                count:10
             },
             {   counts:[],
                 dataset: Incubators

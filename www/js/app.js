@@ -10,6 +10,8 @@ angular.module('IntelligentDetector',['ui.router','controllers','services','dire
     $urlRouterProvider.when('/testResult', '/main/data/testResult');
     $urlRouterProvider.when('/instrument', '/main/data/instrument');
     $urlRouterProvider.when('/reagent', '/main/data/reagent');
+    $urlRouterProvider.when('/newSample', '/main/data/newSample');
+    $urlRouterProvider.when('/newReagent', '/main/data/newReagent');
     $urlRouterProvider.when('/monitors', '/main/monitors/realTime');
     $urlRouterProvider.when('/monitorDebug', '/main/monitors/monitorDebug');
     $urlRouterProvider.when('/realTime', '/main/monitors/realTime');
@@ -62,6 +64,16 @@ angular.module('IntelligentDetector',['ui.router','controllers','services','dire
         url:"/sampling",
         templateUrl:'templates/data/sampling.html',
         controller:'samplingCtrl'
+    })
+    .state('main.data.newSample',{
+        url:"/newSample",
+        templateUrl:'templates/data/newSample.html',
+        controller:'newSampleCtrl'
+    })
+    .state('main.data.newReagent',{
+        url:"/newReagent",
+        templateUrl:'templates/data/newReagent.html',
+        controller:'newReagentCtrl'
     })
     // 监控
     .state('main.monitors.monitorDebug',{
@@ -121,6 +133,14 @@ angular.module('IntelligentDetector',['ui.router','controllers','services','dire
             case 'main.data.instrument' : 
                 // $('#mytabs a[href="#data"]').tab('show');
                 $('#mypills a[href="#instrument"]').tab('show');
+                break;
+            case 'main.data.newSample' : 
+                // $('#mytabs a[href="#data"]').tab('show');
+                $('#mypills a[href="#newSample"]').tab('show');
+                break;
+            case 'main.data.newReagent' : 
+                // $('#mytabs a[href="#data"]').tab('show');
+                $('#mypills a[href="#newReagent"]').tab('show');
                 break;
             case 'main.monitors.realTime' : 
                 $('#mytabs a[href="#monitors"]').tab('show');
