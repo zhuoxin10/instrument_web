@@ -1,140 +1,222 @@
-<div class="tab-pane fade in active" id="monitorDebug">
+<div class="tab-pane fade in active" >
 
-<div class="col-lg-9 col-lg-offset-1">
+
+<div class="col-lg-10 col-lg-offset">
   
 
-<h2>系统控制 {{status}}</h2>
+	<!--<h2>系统控制 {{status}}</h2>-->
+	<p>{{status}}</p>
 
-<div class="bs-callout bs-callout-info">
-	<button type="button" class="btn btn-primary">返回</button>
-	<button type="button" class="btn btn-success" ng-click="getWorkflow()">下一步</button>
-	<button type="button" class="btn btn-danger">紧急停止</button>
-</div>
-
-<p> 这里三个 新建任务 查看当前任务列表</p>
-<!--<div class="row ">-->
-
-  <!--<div class="col-md-4 env-panel" >-->
-  	<!--<h4>隔离器操作</h4>-->
-  	<!--<p>状态：<code>不可操作</code></p>-->
-  	<!--<p>接种方式：<code>薄膜</code></p>-->
-  	<!--<p>样品：<code>枯草芽胞杆菌</code></p>-->
-  	<!--<p>设备状态：<code>正常</code></p>-->
-  	<!--<p>操作人员：<code>张三</code></p>-->
-  <!--</div>-->
-
-	<!--<div class="col-md-4 env-panel">-->
-		<!--<h4>机械臂操作</h4 >-->
-		<!--<p>当前：<code>入样品</code></p>-->
-		<!--<p>下一步：<code>关门</code></p>-->
-		<!--<p>样品：<code>枯草芽胞杆菌</code></p>-->
-		<!--<p>设备状态：<code>正常</code></p>-->
-		<!--<p>操作人员：<code>张三</code></p>-->
-	<!--</div>-->
-
-  <!--<div class="col-md-4 env-panel">-->
-  	<!--<h4>轨道操作</h4>-->
-  	<!--<p>当前：<code>集菌仪</code></p>-->
-  	<!--<p>下一步：<code>培养箱</code></p>-->
-  	<!--<p>完成状况：<code>30 %</code></p>-->
-  	<!--<p>设备状态：<code>正常</code></p>-->
-  	<!--<p>操作人员：<code>张三</code></p>-->
-  <!--</div>-->
-
-  <!--<div class="col-md-4 env-panel">-->
-  	<!--<h4>培养箱操作</h4>-->
-  	<!--<p>当前：<code>入样品</code></p>-->
-  	<!--<p>下一步：<code>关门</code></p>-->
-  	<!--<p>样品：<code>枯草芽胞杆菌</code></p>-->
-  	<!--<p>设备状态：<code>正常</code></p>-->
-  	<!--<p>操作人员：<code>张三</code></p>-->
-  <!--</div>-->
-
-  <!--<div class="col-md-4 env-panel">-->
-  	<!--<h4>视觉系统状态</h4>-->
-  	<!--<p>拍摄间隔：<code>8 小时</code></p>-->
-  	<!--<p>光源开关：<code>关</code></p>-->
-  	<!--<p>检测阈值：<code>85 %</code></p>-->
-  	<!--<p>设备状态：<code>正常</code></p>-->
-  	<!--<p>操作人员：<code>张三</code></p>-->
-  <!--</div>-->
-
-<!--</div>-->
-
-
-	<!--<div class='row'>-->
-
-		<!--<div class="col-md-5">-->
-
-			<!--<div class="bs-callout bs-callout-info">-->
-				<!--<h4>知识库提醒</h4>-->
-				<!--<p>根据当前所处的步骤进行提示和干预</p>-->
+	<!--<div class ="track ">-->
+		<!--<div class ="kurt ">-->
+			<!--<div class ="loader ">-->
 			<!--</div>-->
-
-		<!--</div>-->
-
-		<!--<div class="col-md-5">-->
-
-			<!--<div class="bs-callout bs-callout-info">-->
-				<!--<h4> 实时视频</h4>-->
-				<!--<p> 当前步骤完成情况</p>-->
-			<!--</div>-->
-
 		<!--</div>-->
 	<!--</div>-->
 
-	<table class="table table-striped" ng-if = "flag ">
-
-		<tr>
-			<th>序号</th>
-			<th>操作</th>
-			<th>操作编码</th>
-			<th>设备</th>
-			<!--<th>设备编码</th>-->
-			<th>进度</th>
-		</tr>
-		<tr ng-repeat="on in data.operationName track by $index">
-
-			<td>{{$index + 1}}</td>
-			<td>{{on}}</td>
-			<td>{{data.operationCode[$index]}}</td>
-			<td>{{data.instrument[$index]}}</td>
-			<!--<td>{{data.instrumentCode[$index]}}</td>-->
-			<td>
-				<button type="button" class="btn btn-default btn-xs" ng-if="$index > 38">待完成</button>
-				<!--<button type="button" class="btn btn-danger btn-xs" ng-if="$index <= 68 && $index> 0.6">有故障</button>-->
-				<button type="button" class="btn btn-info btn-xs" ng-if="$index <= 38 && $index > 8">进行中</button>
-				<button type="button" class="btn btn-success btn-xs" ng-if="$index <= 8">已完成</button>
-			</td>
+	<div class="bs-callout bs-callout-info">
 
 
 
-		</tr>
+		<button type="button" class="btn btn-default" ng-click="newSample()" data-toggle="modal" data-target="#myModal2">
+			<span class="glyphicon glyphicon-plus" aria-hidden="true"> 录入样品 </span>
+		</button>
 
-	</table>
+
+		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+			<span class="glyphicon glyphicon-plus" aria-hidden="true"> 建立任务 </span>
+		</button>
+
+		<!--<button type="button" class="btn btn-success" ng-click="getWorkflow()">任务列表</button>-->
+
+		<button type="button" class="btn btn-default" ng-click="update()" >
+			<span class="glyphicon glyphicon-repeat" aria-hidden="true"> 刷新 </span>
+		</button>
+
+		<!--<button type="button" class="btn btn-danger" ng-click="emergencyStop()" ng-if = "flag" style="float: right">紧急停止</button>-->
+	</div>
+
+	<!-- Modals -->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						&times;
+					</button>
+					<h4 class="modal-title" >
+						新建检测任务
+					</h4>
+				</div>
+				<div class="modal-body">
+					<li ng-repeat=" n in procedure ">
+						<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="insertTask($index)" >{{n}}</button>
+					</li>
+
+					<div class="modal-body">
+						请选择待检测样品
+						<div class="form-group" >
+							<select ng-model = "selected.sample"class="form-control" >
+								<option ng-repeat=" s in sampleList"> {{s.ObjectNo}} {{ s.sampleName}} {{s.supplier}}</option>
+							</select>
+						</div>
+
+						选用试剂
+						<div class="form-group">
+							<select ng-model = "selected.reagent" class="form-control" >
+								<option ng-repeat=" r in reagentList"> {{r.ReagentId}} {{r.ReagentName}}</option>
+							</select>
+						</div>
+
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消
+					</button>
+					<!--<button type="button" class="btn btn-primary" ng-click="ne">-->
+						<!--提交-->
+					<!--</button>-->
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal -->
+	</div>
+
+	<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						&times;
+					</button>
+					<h4 class="modal-title">
+						录入新样品
+					</h4>
+				</div>
+				<div class="modal-body">
+
+					<div class="form-group" ng-repeat = " n in newSampleQuery.name track by $index" ng-if = newSampleQuery.select[$index]>
+						<label class="control-label" > {{newSampleQuery.name[$index]}} </label>
+						<input type="text" class="form-control" ng-model = newSampleQuery.value[$index]>
+					</div>
+
+
+
+					<!--<li ng-repeat=" n in procedure ">-->
+						<!--<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="">{{n}}</button>-->
+					<!--</li>-->
+				</div>
+				<div class="modal-footer">
+
+					<button type="button" class="btn btn-default" data-dismiss="modal">
+						关闭
+					</button>
+
+					<button type="button" class="btn btn-primary" data-dismiss="modal" ng-click = "insertSample(newSampleQuery)">
+						提交
+					</button>
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal -->
+	</div>
+
+	<div class="modal fade" id="selectSnI" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+						&times;
+					</button>
+					<h4 class="modal-title" >
+						选择试剂和样品
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<select multiple class="form-control">
+							<option>踢足球</option>
+							<option>游泳</option>
+							<option>踢足球</option>
+							<option>游泳</option>
+							<option>踢足球</option>
+							<option>游泳</option>
+							<option>踢足球</option>
+							<option>游泳</option>
+							<option>踢足球</option>
+							<option>游泳</option>
+							<option>踢足球</option>
+							<option>游泳</option>
+						</select>
+					</div>
+				</div>
+
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">取消
+					</button>
+					<!--<button type="button" class="btn btn-primary" ng-click="ne">-->
+					<!--提交-->
+					<!--</button>-->
+				</div>
+			</div><!-- /.modal-content -->
+		</div><!-- /.modal -->
+	</div>
+	<!--end of Modals-->
+
+
+	<div class = "row">
+		<div class = "col-md-4 ">
+			<div class = "row sample-panel list-panel">
+				<div class =  "task-item" ng-repeat = "n in sampleList" >
+					<p>产品编号： {{n.ObjectNo}}</p>
+					<p>待检测样品： {{n.sampleName}}</p>
+					<p>供应商： {{n.supplier}}</p>
+
+					<!--<h3>{{ n.startTime}}  预计结束： {{ n.endTime}}</h3>-->
+					<!--<div class = "glyphicon glyphicon-trash" ng-click = delete($index)> </div>-->
+				</div>
+			</div>
+
+			<div class = "row sample-panel list-panel">
+				<div class =  "task-item" ng-repeat = "n in reagentList" >
+					<!--<h1>任务： {{n.taskName}}</h1>-->
+					<p>试剂名字： {{n.ReagentName}}</p>
+					<p>试剂编号： {{n.ReagentId}}</p>
+					<p>{{ n.ExpiryDay.getMonth()+1 }}月{{ n.ExpiryDay.getDate()}}日  保质期到期 </p>
+					<!--<div class = "glyphicon glyphicon-trash" ng-click = delete($index)> </div>-->
+				</div>
+			</div>
+		</div>
+
+		<div class = "col-md-6 col-md-offset-1 list-panel">
+			<code ng-if = "taskList.length == 0 "> 暂时没有任务</code>
+			<div class =  "task-item" ng-repeat = "n in taskList" >
+				<p>任务： {{n.taskName}}</p>
+				<p>样品： {{n.sample}}</p>
+				<!--<p>{{n.ExpiryDay}}  预计结束： {{ n.endTime}}</p>-->
+				<div class = "glyphicon glyphicon-trash icons" ng-click = delete($index)> </div>
+			</div>
+		</div>
+	</div>
+
+
+
+	<!--list of tasks-->
+	<!--<div >-->
+
+		<!--<div class =  "task-item" ng-repeat = "n in taskList" >-->
+			<!--<h1>任务： {{n.taskName}}</h1>-->
+			<!--<h2>样品： {{n.sample}}</h2>-->
+			<!--<h3>{{n.startTime}}  预计结束： {{ n.endTime}}</h3>-->
+			<!--<div class = "glyphicon glyphicon-trash" ng-click = delete($index)> </div>-->
+		<!--</div>-->
+
+	<!--</div>-->
+	<!--end of list of tasks-->
+
+
 </div>
-</div>
-
-
-<!-- <div class="bs-callout bs-callout-info">
-    <h4>点击每一个指标在这里画出历史曲线</h4>
-    <p> 历史曲线</p>
-</div>
- -->
-
-<style type="text/css">
-
-.bs-callout-info {
-	border-left-color: #5bc0de;
-}
-
-.bs-callout {
-    padding: 20px;
-    margin: 20px 0;
-    border: 1px solid #eee;
-    border-left-width: 5px;
-    border-radius: 3px;
-}
-
-</style>
-	
+<script>
+	$(function () {
+		$("#popover1").popover();
+	});
+</script>

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('IntelligentDetector',['ui.router','controllers','services','directives','ngTable'])
+angular.module('IntelligentDetector',['ui.router','controllers','services','directives','ngTable', 'ngAnimate'])
 
 .config(['$stateProvider','$urlRouterProvider',
     function($stateProvider,$urlRouterProvider){

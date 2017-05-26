@@ -1,0 +1,5 @@
+.task-item.ng-enter {
+    animation: bounceInUp 0.618s; }
+
+.task-item.ng-leave {
+    animation: bounceOut 0.618s; }
