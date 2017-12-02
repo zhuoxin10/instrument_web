@@ -3,22 +3,12 @@
     <tr ng-repeat="user in $data">
       <td title="'试剂编号'" filter="{ ReagentId: 'text'}" sortable="'ReagentId'">
           {{user.ReagentId}}</td>
-      <td title="'生产日期'" filter="{ ProductDay: 'text'}" sortable="'ProductDay'">
-          {{user.ProductDay}}</td>
-      <td title="'试剂类型'" filter="{ ReagentType: 'text'}" sortable="'ReagentType'">
-          {{user.ReagentType}}</td>
-      <td title="'保质期'" filter="{ ExpiryDay: 'text'}" sortable="'ExpiryDay'">
-          {{user.ExpiryDay}}</td>
       <td title="'试剂名字'" filter="{ ReagentName: 'text'}" sortable="'ReagentName'">
-          {{user.ReagentName}}</td>
-      <td title="'试剂适用性试验'" filter="{ ReagentTest: 'text'}" sortable="'ReagentTest'">
-          {{user.ReagentTest}}</td>
-      <td title="'储存方法'" filter="{ SaveCondition: 'text'}" sortable="'SaveCondition'">
           {{user.SaveCondition}}</td>
-      <td title="'冗余信息'" filter="{ Description: 'text'}" sortable="'Description'">
-          {{user.Description}}</td>
+      <td title="'试剂来源'" filter="{ ReagentSource: 'text'}" sortable="'ReagentSource'">
+          {{user.ReagentSource}}</td>
       <td title="'更新记录'" filter="{ revDateTime: 'text'}" sortable="'revDateTime'">
-          <button type="button" class="btn btn-link" style="font-size:10px;text-decoration:none" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="更新记录" data-content="更新时间：{{user.revDateTime}}<br>终端IP：{{user.TerminalIP}}<br>终端名字：{{user.TerminalName}}<br>用户名：{{user.revUserId}}<br>身份证：{{user.revIdentify}}">{{user.revDateTime}}</button></td>
+          <button type="button" class="btn btn-link" style="font-size:10px;text-decoration:none" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="更新记录" data-content="更新时间：{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}<br>终端IP：{{user.TerminalIP}}<br>终端名字：{{user.TerminalName}}<br>用户名：{{user.revUserId}}<br>身份证：{{user.revIdentify}}">{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}</button></td>
     </tr>
   </table>
 </div>

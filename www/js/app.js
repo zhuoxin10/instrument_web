@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('IntelligentDetector',['ui.router','controllers','services','directives','ngTable', 'ngAnimate'])
+angular.module('IntelligentDetector',['ui.router','controllers','services','directives','ngTable', 'ngAnimate','filters'])
 
 .config(['$stateProvider','$urlRouterProvider',
     function($stateProvider,$urlRouterProvider){
@@ -64,16 +64,6 @@ angular.module('IntelligentDetector',['ui.router','controllers','services','dire
         url:"/sampling",
         templateUrl:'templates/data/sampling.html',
         controller:'samplingCtrl'
-    })
-    .state('main.data.newSample',{
-        url:"/newSample",
-        templateUrl:'templates/data/newSample.html',
-        controller:'newSampleCtrl'
-    })
-    .state('main.data.newReagent',{
-        url:"/newReagent",
-        templateUrl:'templates/data/newReagent.html',
-        controller:'newReagentCtrl'
     })
     // 监控
     .state('main.monitors.monitorDebug',{

@@ -18,11 +18,11 @@
         <td title="'检测过程'" filter="{ Description: 'text'}" sortable="'Description'">
             {{user.Description}}</td>
         <td title="'集菌开始'" filter="{ CollectStart: 'text'}" sortable="'CollectStart'">
-            {{user.CollectStart}}</td>
+            {{user.CollectStart|timeFormat:'YYYY-MM-DD h:m'}}</td>
         <td title="'集菌结束'" filter="{ CollectEnd: 'text'}" sortable="'CollectEnd'">
-            {{user.CollectEnd}}</td>
+            {{user.CollectEnd|timeFormat:'YYYY-MM-DD h:m'}}</td>
         <td title="'检测时间'" filter="{ TestTime: 'text'}" sortable="'TestTime'">
-            {{user.TestTime}}</td>
+            {{user.TestTime|timeFormat:'YYYY-MM-DD h:m'}}</td>
         <td title="'检测结果'" filter="{ TestResult: 'text'}" sortable="'TestResult'">
             {{user.TestResult}}</td>
         <td title="'检测人员'" filter="{ TestPeople: 'text'}" sortable="'TestPeople'">
@@ -32,9 +32,9 @@
         <td title="'复核人员'" filter="{ RePeople: 'text'}" sortable="'RePeople'">
             {{user.RePeople}}</td>
         <td title="'复核时间'" filter="{ ReTime: 'text'}" sortable="'ReTime'">
-            {{user.ReTime}}</td>
+            {{user.ReTime|timeFormat:'YYYY-MM-DD h:m'}}</td>
         <td title="'更新记录'" filter="{ revDateTime: 'text'}" sortable="'revDateTime'">
-          <button type="button" class="btn btn-link" style="font-size:10px;text-decoration:none" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="更新记录" data-content="更新时间：{{user.revDateTime}}<br>终端IP：{{user.TerminalIP}}<br>终端名字：{{user.TerminalName}}<br>用户名：{{user.revUserId}}<br>身份证：{{user.revIdentify}}">{{user.revDateTime}}</button></td>
+          <button type="button" class="btn btn-link" style="font-size:10px;text-decoration:none" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="更新记录" data-content="更新时间：{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}<br>终端IP：{{user.TerminalIP}}<br>终端名字：{{user.TerminalName}}<br>用户名：{{user.revUserId}}<br>身份证：{{user.revIdentify}}">{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}</button></td>
       </tr>
     </table>
     <!-- <pre>{{tableParams.data}}</pre> -->

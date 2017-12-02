@@ -285,8 +285,10 @@
 
         registerInfo.role = registerInfo.role[0];
         console.log(registerInfo.role);
+            console.log(registerInfo);
+
         UserService.RegisterUser(registerInfo).then(function(data){
-            // console.log(data);
+            console.log(data);
             if(data.result == "注册成功"){
                 $timeout(function(){$state.go('main.data.sampling');} , 500);
                 $scope.status = "注册成功";
@@ -1063,39 +1065,6 @@
       Storage.set('ObjIncuSeq', ObjIncuSeq);
     };
 }])
-// 新建样品--张桠童
-.controller('newSampleCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams','$state','extraInfo',
-  function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams,$state,extraInfo){
-    $scope.sample = {};
-    var getJsonLength=function(jsonData){
-        var jsonLength = 0;
-        for(var item in jsonData){
-            jsonLength++;
-        }
-        return jsonLength;
-    }
-    $scope.test=function(){
-        var formLength = getJsonLength($scope.sample);
-        if(formLength==7){
-            $scope.sample.TerminalIP=extraInfo.postInformation().TerminalIP;
-            $scope.sample.TerminalName=extraInfo.postInformation().TerminalName;
-            $scope.sample.revUserId=extraInfo.postInformation().revUserId;
-            // console.log($scope.sample);
-            // console.log(formLength);
-            var promise = ItemInfo.SetSampleData($scope.sample);
-            promise.then(function(data){
-                console.log(data[0]);
-                if(data[0]=="插入成功"){
-                    $('#Modal_newSampleDialog').modal('show').on('shown.bs.modal', function(e){
-                        $('#Modal_newSampleDialog').modal('hide').on('hidden.bs.modal', function(e){
-                            $state.go('main.data.sampling');
-                        })
-                    });
-                }
-            },function(err){});
-        };
-    };
-}])
 // 检测结果表--张桠童
 .controller('testResultCtrl',['$scope','CONFIG','Storage','Data','Result','NgTableParams','$timeout','$state',
   function($scope,CONFIG,Storage,Data,Result,NgTableParams,$timeout,$state){
@@ -1229,52 +1198,7 @@
             });
     },function(err){});
 }])
-// 新建试剂--张桠童
-.controller('newReagentCtrl',['$scope','CONFIG','Storage','Data','UserService','ItemInfo','NgTableParams','$state','extraInfo',
-  function($scope,CONFIG,Storage,Data,UserService,ItemInfo,NgTableParams,$state,extraInfo){
-    $scope.reagent = {};
-    $scope.reagenttypes = {};
 
-    var getJsonLength=function(jsonData){
-        var jsonLength = 0;
-        for(var item in jsonData){
-            jsonLength++;
-        }
-        return jsonLength;
-    };
-
-    var promise = UserService.GetReagentType();
-    promise.then(function(data){
-        // console.log(data);
-        $scope.reagenttypes = data;
-    },function(err){});
-
-    $scope.test=function(){
-        var formLength = getJsonLength($scope.reagent);
-        console.log(formLength);
-        if(formLength>=6){
-            $scope.reagent.TerminalIP=extraInfo.postInformation().TerminalIP;
-            $scope.reagent.TerminalName=extraInfo.postInformation().TerminalName;
-            $scope.reagent.revUserId=extraInfo.postInformation().revUserId;
-            var promise = ItemInfo.CreateReagentId($scope.reagent.ReagentType);
-            promise.then(function(data){
-                $scope.reagent.ReagentId = data.result;
-                console.log($scope.reagent);
-                var promise1 = ItemInfo.SetReagentData($scope.reagent);
-                promise1.then(function(data){
-                    // console.log(data);
-                    if(data.result=="插入成功"){
-                        $('#Modal_newreagentDialog').modal('show').on('shown.bs.modal', function(e){
-                            $('#Modal_newreagentDialog').modal('hide').on('hidden.bs.modal', function(e){
-                                $state.go('main.data.reagent');
-                            })
-                        });
-                    }
-                },function(err){});
-            },function(err){});
-        };
-    };
-}])
 // 仪器信息表--张桠童
 .controller('instrumentCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams',
   function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams){

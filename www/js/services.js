@@ -283,6 +283,8 @@
                     TerminalIP: 1,
                     revUserId: UID
                 } ,function (data,headers,status) {
+                    console.log(data)
+
                 deferred.resolve(data);
 
             },function(err){
