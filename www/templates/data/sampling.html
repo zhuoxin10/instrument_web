@@ -137,7 +137,7 @@
     </div>
   </div> -->
   <table ng-table="tableParams" class="table table-condensed" show-filter="true">
-    <tr ng-repeat="user in $data">
+    <tr ng-repeat="user in $data" style="text-align: center;">
       <td title="'产品编号'" filter="{ ObjectNo: 'text'}" sortable="'ObjectNo'">
           <button type="button" class="btn btn-link" style="font-size:10px;text-decoration:none" ng-click="toTestResult(user.ObjectNo,user.ObjCompany,user.ObjIncuSeq)">{{user.ObjectNo}}</button></td>
       <td title="'样品来源'" filter="{ ObjCompany: 'text'}" sortable="'ObjCompany'">

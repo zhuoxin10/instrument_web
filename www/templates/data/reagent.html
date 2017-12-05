@@ -1,6 +1,6 @@
 <div class="tab-pane fade in active" id="reagent">
   <table ng-table="tableParams" class="table table-condensed" show-filter="true">
-    <tr ng-repeat="user in $data">
+    <tr ng-repeat="user in $data" style="text-align: center;">
       <td title="'试剂编号'" filter="{ ReagentId: 'text'}" sortable="'ReagentId'">
           {{user.ReagentId}}</td>
       <td title="'试剂名字'" filter="{ ReagentName: 'text'}" sortable="'ReagentName'">

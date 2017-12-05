@@ -1,0 +1,19 @@
+<div class="tab-pane fade in active" id="dictionary">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-1" role="navigation">
+                <ul id="mypills2" class="nav nav-pills nav-stacked" style="text-align: center;font-size: 15px">
+                    <li><a href="#samplingtype" data-toggle="pill">样品类型维护</a></li>
+                    <li><a href="#operation" data-toggle="pill">基本操作维护</a></li>
+                    <li><a href="#operatingprocess" data-toggle="pill">操作流程维护</a></li>
+                </ul>
+            </div>
+            <div class="col-xs-10">
+                <div ui-view></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+$('#mypills2 a[href="#samplingtype"]').tab('show');
+</script>

@@ -1,0 +1,17 @@
+<div class="tab-pane fade in active" id="dictionary">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-xs-1" role="navigation">
+        <ul id="mypills2" class="nav nav-pills nav-stacked" style="text-align: center;font-size: 15px">
+          <li><a href="#allusers" data-toggle="pill">用户管理</a></li>
+        </ul>
+      </div>
+      <div class="col-xs-10">
+      	<div ui-view></div>
+      </div>
+    </div>  
+  </div>
+</div>
+<script>
+  $('#mypills2 a[href="#allusers"]').tab('show');
+</script>
