@@ -1,329 +1,341 @@
-﻿angular.module('controllers',['ngResource','services'])
+﻿angular.module('controllers', ['ngResource', 'services'])
 
-.controller('LoginCtrl',['UserService','$scope','$state','Storage', '$timeout', function(UserService,$scope,$state,Storage,$timeout){
+    .controller('LoginCtrl', ['UserService', '$scope', '$state', 'Storage', '$timeout', function(UserService, $scope, $state, Storage, $timeout) {
 
-    //捆绑变量
-    $scope.logdisable = false;
-    $scope.logStatus = "   ";
+        //捆绑变量
+        $scope.logdisable = false;
+        $scope.logStatus = "   ";
 
-    // 判断当前本地是否缓存了手机号
-    if(Storage.get('PHONENO')!=null){ //缓存了手机号 将其显示到输入栏
-      $scope.login = { phoneno : Storage.get('PHONENO'),
-          password : ""
-      };
-    }
-    else{ //否则空白显示
-      $scope.login = { phoneno : "",
-          password : ""
-      };
-    }
-    var  count = 0; //记录登录总次数,用于disable button
+        // 判断当前本地是否缓存了手机号
+        if (Storage.get('PHONENO') != null) { //缓存了手机号 将其显示到输入栏
+            $scope.login = {
+                phoneno: Storage.get('PHONENO'),
+                password: ""
+            };
+        } else { //否则空白显示
+            $scope.login = {
+                phoneno: "",
+                password: ""
+            };
+        }
+        var count = 0; //记录登录总次数,用于disable button
 
-    // UserService.Login("2323","12345678")
+        // UserService.Login("2323","12345678")
 
-    $scope.LogIn = function(login) {
-      //显示登陆的进程
-      $scope.logStatus = " ";
+        $scope.LogIn = function(login) {
+            //显示登陆的进程
+            $scope.logStatus = " ";
 
-      // 如果都输入完全的信息了 开始下一步
-      if (login.phoneno != "" && login.password != "") {
+            // 如果都输入完全的信息了 开始下一步
+            if (login.phoneno != "" && login.password != "") {
 
-          //判断合法手机号
-          var phonev = /^1(3|4|5|7|8)\d{9}$/;
-          if(!phonev.test(login.phoneno) ){
-              $scope.logStatus = '请输入正确手机号';
-              return
-          }
+                //判断合法手机号
+                var phonev = /^1(3|4|5|7|8)\d{9}$/;
+                if (!phonev.test(login.phoneno)) {
+                    $scope.logStatus = '请输入正确手机号';
+                    return
+                }
 
-          //从手机号获得 UserId
-          UserService.GetUserByPhoneNo(login.phoneno).then(function(data){
+                //从手机号获得 UserId
+                UserService.GetUserByPhoneNo(login.phoneno).then(function(data) {
 
-              data = data.toJSON();
-              t = [];
-              for(i in data){
-                  t = t + data[i];
-              }
-              data = t;
+                    data = data.toJSON();
+                    t = [];
+                    for (i in data) {
+                        t = t + data[i];
+                    }
+                    data = t;
 
-              if(data != ""){ //获得UserId
+                    if (data != "") { //获得UserId
 
-                  // console.log(data.result);
-                  Storage.set("UID",data);
-                  UserService.SetUID(data);
-                  //本地暂存
-                  UserService.Login(data,login.password).then(function(data2){ //登陆
-                      if(data2.result =="登录成功"){
+                        // console.log(data.result);
+                        Storage.set("UID", data);
+                        UserService.SetUID(data);
+                        //本地暂存
+                        UserService.Login(data, login.password).then(function(data2) { //登陆
+                            if (data2.result == "登录成功") {
 
-                          $scope.logStatus = " 登录成功";
-                          //获得个人信息
-                          // UserService.GetUserInfo(login.phoneno).then(function(data){
-                          //     console.log(data.result.split('|'))
-                          // });
-                          // 跳转到主页
-                          $timeout(function(){$state.go('main.data.sampling');} , 500);
+                                $scope.logStatus = " 登录成功";
+                                //获得个人信息
+                                // UserService.GetUserInfo(login.phoneno).then(function(data){
+                                //     console.log(data.result.split('|'))
+                                // });
+                                // 跳转到主页
+                                $timeout(function() { $state.go('main.data.sampling'); }, 500);
 
-                      }
-                      else{
-                          switch(data2.result){
-                              case 0: $scope.logStatus = "用户不存在";break;
-                              case -1: $scope.logStatus = "密码错误";break;
-                              case -2: $scope.logStatus = "连接数据库失败";break;
-                              default: $scope.logStatus = "其他问题";break;
+                            } else {
+                                switch (data2.result) {
+                                    case 0:
+                                        $scope.logStatus = "用户不存在";
+                                        break;
+                                    case -1:
+                                        $scope.logStatus = "密码错误";
+                                        break;
+                                    case -2:
+                                        $scope.logStatus = "连接数据库失败";
+                                        break;
+                                    default:
+                                        $scope.logStatus = "其他问题";
+                                        break;
 
-                          }
+                                }
 
-                          if(count++ >= 5){ //连续超过五次 禁止登陆60s
-                              $scope.logStatus = "稍后再试";
-                              $scope.logdisable = true;
-                              $timeout(function(){$scope.logdisable=false;count=0;} , 60000);
-                          }
-                      }
-                  })
-              }
+                                if (count++ >= 5) { //连续超过五次 禁止登陆60s
+                                    $scope.logStatus = "稍后再试";
+                                    $scope.logdisable = true;
+                                    $timeout(function() {
+                                        $scope.logdisable = false;
+                                        count = 0;
+                                    }, 60000);
+                                }
+                            }
+                        })
+                    }
 
-              }
-          )
+                })
 
-      }
-      else{ //否则开始计算点击次数
-          if(count++ <5){   //超过五次 禁止登陆
-              $scope.logStatus =  "请输入完整信息";
-          }else{
-              $scope.logStatus = "请输入完整信息";
-              $scope.logdisable = true;
-              $timeout(function(){$scope.logdisable=false;count=0;} , 60000);
-          }
-      }
-    };
-    $scope.toRegister = function(){ //跳转到注册页面-电话验证
-
-      Storage.set('setPasswordState','register');
-      $state.go('phoneValid');
-
-    }
-
-    $scope.toReset = function() {//跳转到找回密码页面-电话验证
-
-      Storage.set('setPasswordState', 'reset');
-      $state.go('phoneValid');
-
-    }
-
-
-
-
-}])
-
-.controller('phoneValidCtrl',['$scope','$timeout','$interval','Storage','$state','UserService',function($scope,$timeout,$interval,Storage,$state,UserService){
-
-    $scope.telnumber = '';
-    $scope.validnumber = '';
-    $scope.check = '';
-    $scope.validStatus = "点击发送验证码";
-    $scope.title = " ";
-    $scope.if_disabled = false;
-    switch(Storage.get('setPasswordState')){
-        case 'register':  $scope.title = "注册"; break;
-        case 'reset': $scope.title = "找回密码"; break;
-        default: $scope.title = "注册";
-    }
-
-    var uid_valid = /^UID\d{11}/;
-    var RegisterNewUser = function(tel){
-
-        UserService.CreateNewUserId(tel).then(function(data){
-            // 转换成 json
-            data = data.toJSON();
-            var t = "";
-            for(i in data){
-                t = t + data[i];
+            } else { //否则开始计算点击次数
+                if (count++ < 5) { //超过五次 禁止登陆
+                    $scope.logStatus = "请输入完整信息";
+                } else {
+                    $scope.logStatus = "请输入完整信息";
+                    $scope.logdisable = true;
+                    $timeout(function() {
+                        $scope.logdisable = false;
+                        count = 0;
+                    }, 60000);
+                }
             }
-            data = t;
+        };
+        $scope.toRegister = function() { //跳转到注册页面-电话验证
 
-            // console.log(data);
-            if(data == "该手机号已经注册" ){
-                $scope.validStatus = "该手机号已经注册";
-                return ;
-            }
-            else if(uid_valid.test(data)){
-                $scope.validStatus = "生成新用户ID成功";
-                Storage.set('UID', data);
-                UserService.SetUID(data);
-                UserService.SetPhenoNo(tel);
-            }
-            else{
-                $scope.validStatus = "生成新用户ID失败";
-            }
-        },function(er){
-            console.log(er)
-            $scope.validStatus = "验证失败";
-        });
-    }
+            Storage.set('setPasswordState', 'register');
+            $state.go('phoneValid');
 
-    var ResetPassword = function(tel){
-        //判断手机号是否存在
-        UserService.GetUserByPhoneNo(tel).then(function(data){
-            // 转换成 json
+        }
 
-            data = data.toJSON();
-            var t = "";
-            for(i in data){
-                t = t + data[i];
-            }
-            data = t;
+        $scope.toReset = function() { //跳转到找回密码页面-电话验证
 
-            if(data == null){
-                $scope.validStatus = "不存在该用户";
+            Storage.set('setPasswordState', 'reset');
+            $state.go('phoneValid');
+
+        }
+    }])
+
+    .controller('phoneValidCtrl', ['$scope', '$timeout', '$interval', 'Storage', '$state', 'UserService', function($scope, $timeout, $interval, Storage, $state, UserService) {
+
+        $scope.telnumber = '';
+        $scope.validnumber = '';
+        $scope.check = '';
+        $scope.validStatus = "点击发送验证码";
+        $scope.title = " ";
+        $scope.if_disabled = false;
+        switch (Storage.get('setPasswordState')) {
+            case 'register':
+                $scope.title = "注册";
+                break;
+            case 'reset':
+                $scope.title = "找回密码";
+                break;
+            default:
+                $scope.title = "注册";
+        }
+
+        var uid_valid = /^UID\d{11}/;
+        var RegisterNewUser = function(tel) {
+
+            UserService.CreateNewUserId(tel).then(function(data) {
+                // 转换成 json
+                data = data.toJSON();
+                var t = "";
+                for (i in data) {
+                    t = t + data[i];
+                }
+                data = t;
+
+                // console.log(data);
+                if (data == "该手机号已经注册") {
+                    $scope.validStatus = "该手机号已经注册";
+                    return;
+                } else if (uid_valid.test(data)) {
+                    $scope.validStatus = "生成新用户ID成功";
+                    Storage.set('UID', data);
+                    UserService.SetUID(data);
+                    UserService.SetPhenoNo(tel);
+                } else {
+                    $scope.validStatus = "生成新用户ID失败";
+                }
+            }, function(er) {
+                console.log(er)
+                $scope.validStatus = "验证失败";
+            });
+        }
+
+        var ResetPassword = function(tel) {
+            //判断手机号是否存在
+            UserService.GetUserByPhoneNo(tel).then(function(data) {
+                // 转换成 json
+
+                data = data.toJSON();
+                var t = "";
+                for (i in data) {
+                    t = t + data[i];
+                }
+                data = t;
+
+                if (data == null) {
+                    $scope.validStatus = "不存在该用户";
+                    return
+                } else if (uid_valid.test(data)) {
+                    Storage.set("UID", data);
+                    UserService.SetUID(data);
+                    UserService.SetPhenoNo(tel);
+                    $scope.validStatus = "已发送验证";
+                }
+            })
+        };
+
+        $scope.SendMSM = function(tel) {
+            if ($scope.if_disabled) return;
+
+            var phonev = /^1(3|4|5|7|8)\d{9}$/;
+            if (!phonev.test(tel)) {
+                $scope.check = '请输入正确手机号';
                 return
             }
-            else if(uid_valid.test(data)){
-                Storage.set("UID",data);
-                UserService.SetUID(data);
-                UserService.SetPhenoNo(tel);
-                $scope.validStatus = "已发送验证";
+
+
+            if (Storage.get('setPasswordState') == 'register') {
+                RegisterNewUser(tel);
+            } else {
+                ResetPassword(tel);
             }
-        })
-    };
+            $scope.if_disabled = true;
 
-    $scope.SendMSM = function(tel){
-        if($scope.if_disabled) return;
+            //倒计时60s
+            $timeout(function() {
+                $scope.validStatus = "点击发送验证码";
+                $scope.if_disabled = false;
+            }, 60000);
+            var second = 60;
+            timePromise = undefined;
 
-        var phonev = /^1(3|4|5|7|8)\d{9}$/;
-        if(!phonev.test(tel) ){
-            $scope.check = '请输入正确手机号';
-            return
-        }
+            timePromise = $interval(function() {
+                if (second <= 0) {
+                    $interval.cancel(timePromise);
+                    timePromise = undefined;
+                    second = 60;
+                    $scope.validStatus = "重发验证码";
+                } else {
+                    $scope.validStatus = String(second) + "秒后再发送";
+                    second--;
+
+                }
+            }, 1000, 100);
 
 
-        if(Storage.get('setPasswordState') == 'register'){
-            RegisterNewUser(tel);
-        }
-        else{
-            ResetPassword(tel);
-        }
-        $scope.if_disabled = true;
+        };
 
-        //倒计时60s
-        $timeout(function(){$scope.validStatus = "点击发送验证码";$scope.if_disabled = false;} , 60000);
-        var second = 60;
-        timePromise = undefined;
+        $scope.validNext = function(number) {
 
-        timePromise = $interval(function(){
-            if(second<=0){
-                $interval.cancel(timePromise);
-                timePromise = undefined;
-                second = 60;
-                $scope.validStatus = "重发验证码";
-            }else{
-                $scope.validStatus = String(second) + "秒后再发送";
-                second--;
-
+            var phonev = /^1(3|4|5|7|8)\d{9}$/;
+            if (!phonev.test(number)) {
+                $scope.check = '请输入正确手机号';
+                return
             }
-        },1000,100);
 
-
-    };
-
-    $scope.validNext = function(number){
-
-        var phonev = /^1(3|4|5|7|8)\d{9}$/;
-        if(!phonev.test(number) ){
-            $scope.check = '请输入正确手机号';
-            return
-        }
-
-        var validNumberReg = /^\d{6}$/;
-        if(!validNumberReg.test($scope.validnumber)){
-            $scope.check = '请输入正确验证码';
-            return
-        }
-
-
-        //调web Service 判断验证码正不正确
-
-
-        switch(Storage.get('setPasswordState')){
-            case 'register': $state.go('register');break;
-            case 'reset': $state.go('setPassword');
-        }
-    }
-
-    $scope.onClickCancel = function(){
-       Storage.rm("UID");
-       $state.go("login");
-    }
-
-
-
-}])
-
-
-.controller('RegisterCtrl',['UserService','$scope','$state','Storage', '$timeout', function(UserService,$scope,$state,Storage,$timeout){
-
-    $scope.registerInfo = {
-        uid:UserService.GetUID(),
-        username:'',
-        id:'',
-        password:'',
-        password_rep:'',
-        role:""
-    };
-
-    $scope.status = "";
-
-
-    $scope.onClickReg = function(registerInfo){
-
-
-        if(registerInfo.role == ""){
-            $scope.status = "请选角色";
-        }
-
-        if(registerInfo.password != registerInfo.password){
-            $scope.status = "两次密码不同";
-        }
-
-        registerInfo.role = registerInfo.role[0];
-        console.log(registerInfo.role);
-        UserService.RegisterUser(registerInfo).then(function(data){
-            // console.log(data);
-            if(data.result == "注册成功"){
-                $timeout(function(){$state.go('main.data.sampling');} , 500);
-                $scope.status = "注册成功";
+            var validNumberReg = /^\d{6}$/;
+            if (!validNumberReg.test($scope.validnumber)) {
+                $scope.check = '请输入正确验证码';
+                return
             }
-            else{
-                $scope.status = "注册失败";
+
+
+            //调web Service 判断验证码正不正确
+
+
+            switch (Storage.get('setPasswordState')) {
+                case 'register':
+                    $state.go('register');
+                    break;
+                case 'reset':
+                    $state.go('setPassword');
             }
-        })
-    }
-}])
-
-.controller('SetPasswordCtrl',['UserService','$scope','$state','Storage', '$timeout', function(UserService,$scope,$state,Storage,$timeout){
-
-    $scope.Input = {
-        password:'',
-        password2:'',
-        password_old :''
-    };
-
-    $scope.status = "";
-
-    $scope.onClickCancel = function(){
-        Storage.rm("UID");
-        $state.go("login");
-    };
-
-    $scope.onClickConfirm = function(Input){
-
-
-        if(Input.password != Input.password2){
-            $scope.status = "两次密码不同";
-            return
         }
 
-        // console.log(Storage.get("UID"));
-        // infoIndex = ["UserId","Identify","PhoneNo","UserName","Role"];
-        // UserService.GetUserInfo(infoIndex).then(function(data){
+        $scope.onClickCancel = function() {
+            Storage.rm("UID");
+            $state.go("login");
+        }
+    }])
+
+    .controller('RegisterCtrl', ['UserService', '$scope', '$state', 'Storage', '$timeout', function(UserService, $scope, $state, Storage, $timeout) {
+
+        $scope.registerInfo = {
+            uid: UserService.GetUID(),
+            username: '',
+            id: '',
+            password: '',
+            password_rep: '',
+            role: ""
+        };
+
+        $scope.status = "";
+
+
+        $scope.onClickReg = function(registerInfo) {
+
+
+            if (registerInfo.role == "") {
+                $scope.status = "请选角色";
+            }
+
+            if (registerInfo.password != registerInfo.password) {
+                $scope.status = "两次密码不同";
+            }
+
+            registerInfo.role = registerInfo.role[0];
+            console.log(registerInfo.role);
+            console.log(registerInfo);
+
+            UserService.RegisterUser(registerInfo).then(function(data) {
+                console.log(data);
+                if (data.result == "注册成功") {
+                    $timeout(function() { $state.go('main.data.sampling'); }, 500);
+                    $scope.status = "注册成功";
+                } else {
+                    $scope.status = "注册失败";
+                }
+            })
+        }
+    }])
+
+    .controller('SetPasswordCtrl', ['UserService', '$scope', '$state', 'Storage', '$timeout', function(UserService, $scope, $state, Storage, $timeout) {
+
+        $scope.Input = {
+            password: '',
+            password2: '',
+            password_old: ''
+        };
+
+        $scope.status = "";
+
+        $scope.onClickCancel = function() {
+            Storage.rm("UID");
+            $state.go("login");
+        };
+
+        $scope.onClickConfirm = function(Input) {
+
+
+            if (Input.password != Input.password2) {
+                $scope.status = "两次密码不同";
+                return
+            }
+
+            // console.log(Storage.get("UID"));
+            // infoIndex = ["UserId","Identify","PhoneNo","UserName","Role"];
+            // UserService.GetUserInfo(infoIndex).then(function(data){
             // console.log(Storage.get("UID"));
 
             // if(data == null) {
@@ -364,415 +376,73 @@
             // console.log(data);
             // Input.password_old = data[4];
 
-            UserService.ChangePassword(Input,1).then(function(res){
-                if(res.result == "修改成功"){
-                    $timeout(function(){$state.go('main.data.sampling');} , 500);
-                }
-                else{
+            UserService.ChangePassword(Input, 1).then(function(res) {
+                if (res.result == "修改成功") {
+                    $timeout(function() { $state.go('main.data.sampling'); }, 500);
+                } else {
 
                 }
                 // if(res){
                 //     $timeout(function(){$state.go('main.data');} , 500);
                 // }
-        })
+            })
 
-    }
-
-}])
-
-
-.controller('ChangePasswordCtrl',['UserService','$scope','$state','Storage', '$timeout', function(UserService,$scope,$state,Storage,$timeout){
-
-
-    $scope.Input = {
-        password:'',
-        password2:'',
-        password_old:''
-    };
-
-    $scope.status = "";
-
-
-    $scope.onClickConfirm = function(Input){
-
-
-        if(Input.password != Input.password2){
-            $scope.status = "两次新密码不同";
-            return
         }
+    }])
 
-        UserService.ChangePassword(Input,0).then(function(res){
-            if(res.result == "修改成功"){
-                $scope.status = "修改成功";
-                $timeout(function(){$state.go('login');} , 500);
-            }
-            else{
-                $scope.status = "修改失败";
-            }
-        })
+    .controller('ChangePasswordCtrl', ['UserService', '$scope', '$state', 'Storage', '$timeout', function(UserService, $scope, $state, Storage, $timeout) {
 
 
-    };
-
-    $scope.back = function(){
-        $state.go('main.data.sampling');
-    }
-}])
-
-.controller('RealTimeCtrl',['UserService','$scope','$state','Storage', '$timeout', 'SocketService', function(UserService, $scope, $state, Storage, $timeout, SocketService){
-
-
-    $scope.status = "No Connection";
-
-
-    SocketService.on('connect', function(){
-        // console.log('Connected');
-        $scope.status = "Connected"
-    });
-
-    SocketService.on('disconnect',function(){
-        $scope.status = "No Connection"
-    });
-
-    SocketService.on('message', function(data){
-        // console.log(data);
-        $scope.status = "Connected";
-        var myChart = echarts.init(document.getElementById('main'));
-        myChart.showLoading();
-        // 指定图表的配置项和数据
-        var option = {
-            title: {
-                text: $scope.text
-            },
-            tooltip: {},
-            legend: {
-                data:['params']
-            },
-            xAxis: {
-                data: []
-            },
-            yAxis: {},
-            series: [{
-                name: '销量',
-                type: 'line',
-                data: data.data
-            }]
+        $scope.Input = {
+            password: '',
+            password2: '',
+            password_old: ''
         };
 
-        // 使用刚指定的配置项和数据显示图表。
-        myChart.setOption(option);
-        myChart.hideLoading();
-    });
+        $scope.status = "";
 
 
-    $scope.isolator1 = {
-        name: "进料区",
-        env_names: ["进料区温度","进料区湿度","进料区压力","进料区风速","进料区过氧化氢浓度"],
-        env_codes:["1","2","3","4","5"],
-        env_status:[1,1,1,1,1],
-        instr_names:[
-            "进料区灭菌器",
-
-            "进料区与进料待加工区之间的门",
-            "进料区导轨"
+        $scope.onClickConfirm = function(Input) {
 
 
-        ],
-        instr_codes:[
-            "1","2","3","4","5","6","7","8","9","10","11"
-        ],
-        instr_status:[
-            "1","2","3","4","5","6","7","8","9","10","11"
-        ]
+            if (Input.password != Input.password2) {
+                $scope.status = "两次新密码不同";
+                return
+            }
+
+            UserService.ChangePassword(Input, 0).then(function(res) {
+                if (res.result == "修改成功") {
+                    $scope.status = "修改成功";
+                    $timeout(function() { $state.go('login'); }, 500);
+                } else {
+                    $scope.status = "修改失败";
+                }
+            })
 
 
-    };
+        };
 
-    $scope.isolator2 = {
-        name: "进料待加工区",
-        env_names: ["进料待加工区温度","进料待加工区湿度","进料待加工区压力","进料待加工区风速","进料待加工区过氧化氢浓度"],
-        env_codes:["1","2","3","4","5"],
-        env_status:[1,1,1,1,1],
-        instr_names:[
+        $scope.back = function() {
+            $state.go('main.data.sampling');
+        }
+    }])
 
-            "进料待加工区灭菌器",
-            "加工区灭菌器",
-            "待出料区灭菌器",
-
-
-
-
-
-        ],
-        instr_codes:[
-            "1","2","3","4","5","6","7","8","9","10","11"
-        ],
-        instr_status:[
-            "1","2","3","4","5","6","7","8","9","10","11"
-        ]
-
-
-    };
-
-    $scope.isolator3 = {
-        name: "加工区",
-        env_names: ["加工区温度","加工区湿度","加工区压力","加工区风速","加工区过氧化氢浓度"],
-        env_codes:["1","2","3","4","5"],
-        env_status:[1,1,1,1,1],
-        instr_names:[
-
-
-            "加工区灭菌器",
-
-
-
-            "出料区导轨",
-            "待出料区与出料区之间的门"
-
-        ],
-        instr_codes:[
-            "1","2","3","4","5","6","7","8","9","10","11"
-        ],
-        instr_status:[
-            "1","2","3","4","5","6","7","8","9","10","11"
-        ]
-
-
-    };
-
-    $scope.isolator4 = {
-        name: "待出料区",
-        env_names: ["待出料区温度","待出料区湿度","待出料区压力","待出料区风速","待出料区过氧化氢浓度"],
-        env_codes:["1","2","3","4","5"],
-        env_status:[1,1,1,1,1],
-        instr_names:[
-
-            "待出料区灭菌器",
-
-
-
-            "待出料区与出料区之间的门"
-
-        ],
-        instr_codes:[
-            "1","2","3","4","5","6","7","8","9","10","11"
-        ],
-        instr_status:[
-            "1","2","3","4","5","6","7","8","9","10","11"
-        ]
-
-
-    };
-    $scope.isolator5 = {
-        name: "出料区",
-        env_names: ["出料区温度","出料区湿度","出料区压力","出料区风速","出料区过氧化氢浓度"],
-        env_codes:["1","2","3","4","5"],
-        env_status:[1,1,1,1,1],
-        instr_names:[
-
-            "出料区灭菌器",
-
-
-            "出料区导轨"
-
-        ],
-        instr_codes:[
-            "1","2","3","4","5","6","7","8","9","10","11"
-        ],
-        instr_status:[
-            "1","2","3","4","5","6","7","8","9","10","11"
-        ]
-
-    };
-
-    $scope.isolator = {
-        name: "出料区",
-        env_names: ["温度","湿度","压力","风速","过氧化氢浓度"],
-        env_codes:["1","2","3","4","5"],
-        env_status:[1,1,1,1,1],
-        instr_names:[
-            "进料区灭菌器",
-            "进料待加工区灭菌器",
-            "加工区灭菌器",
-            "待出料区灭菌器",
-            "出料区灭菌器",
-            "进料区与进料待加工区之间的门",
-            "进料区导轨",
-            "加工区导轨",
-            "出料区导轨",
-            "待出料区与出料区之间的门",
-            "机械臂"
-        ],
-        instr_codes:[
-            "1","2","3","4","5","6","7","8","9","10","11"
-        ],
-        instr_status:[
-            "1","2","3","4","5","6","7","8","9","10","11"
-        ]
-
-
-    };
-    $scope.incubator = {
-        name: "培养箱",
-        env_names: ["培养箱温度"],
-        env_codes:["1"],
-        env_status: ["35 ℃"],
-        instr_names:[
-            "培养箱门",
-            "上层外圈转盘",
-            "上层内圈转盘",
-            "下层外圈转盘",
-            "下层内圈转盘",
-            "顶空电源",
-            "视觉光源",
-            "工业相机",
-            "顶空分析",
-            "支架电机"
-        ],
-        instr_codes:["1","2","3","4","5","6","7","8","9","10"],
-        instr_status:[
-            "1","2","3","4","5","6","7","8","9","10"
-        ]
-    };
-
-    $scope.printcode = function(code,name){
-        // console.log(code);
-        SocketService.emit('get params',code);
-        $scope.text = name;
-
-    }
-
-
-}])
-
-
-.controller('MonitorCtrl',['UserService','$scope','$state','Storage', '$timeout', 'SocketService', '$rootScope',
-    function(UserService, $scope, $state, Storage, $timeout, SocketService,$rootScope){
+    .controller('RealTimeCtrl', ['UserService', '$scope', '$state', 'Storage', '$timeout', 'SocketService', function(UserService, $scope, $state, Storage, $timeout, SocketService) {
 
 
         $scope.status = "No Connection";
-        $scope.flag = false;
-        $scope.selected = {sample: '', reagent:''};
-        $scope.procedure = ['隔离器灭菌', '自检/复位', '集菌', '培养箱检测'];
-        $scope.taskList = [{taskName:'全仓灭菌', sample:'NA', startTime: '', endTime:''},
-        {taskName:'全部复位/自检', sample:'NA', startTime: '', endTime:''},
-        {taskName:'集菌', sample:'SID201705170001', startTime: '出生', endTime:'死亡'},
-        {taskName:'培养', sample:'SID201705170001', startTime: '出生', endTime:'死亡'}];
-        $scope.sampleList = [{sampleName: '参麦注射液', supplier:'青春宝', category: '处方药品', ObjectNo:'SID201705170001'},
-            {sampleName: '丹参注射液', supplier:'青春宝', category: '处方药品', ObjectNo:'SID201705170002'},
-            {sampleName: '香丹注射液', supplier:'青春宝', category: '处方药品', ObjectNo:'SID201705170003'},
-            {sampleName: '鱼腥草注射液', supplier:'青春宝', category: '处方药品', ObjectNo:'SID201705170004'},
-            {sampleName: '抗衰老口服液', supplier:'青春宝', category: '非处方药品', ObjectNo:'SID201705170005'}];
-        $scope.reagentList = [{ReagentName: '葡萄糖', ExpiryDay:new Date(), ReagentType: '培养基', ReagentId:'RID201705170001'},
-            {ReagentName: '金黄色葡萄球菌', ExpiryDay:new Date(), ReagentType: '菌液', ReagentId:'RID201705170002'},
-            {ReagentName: '冲洗液', ExpiryDay:new Date(), ReagentType: '其他', ReagentId:'RID201705170003'}];
 
 
-        $scope.newSampleQuery = {
-        key:['ObjectNo',
-            'ObjCompany',
-            'ObjIncuSeq',
-            'ObjectName',
-            'ObjectType',
-            'SamplingPeople',
-            'SamplingTime',
-            'SamplingWay',
-            'SamplingTool',
-            'SamAmount',
-            'DevideWay',
-            'SamContain',
-            'Warning',
-            'SamSave',
-            'RevisionInfo'
-        ],
-        name: ['产品编号',
-            '供应商',
-            '培养批次',
-            '产品名字',
-            '产品类型',
-            '样品记录人员',
-            '样品记录时间',
-            '取样方法',
-            '取样器具',
-            '取样量',
-            '分样方法',
-            '样品容器',
-            '注意事项',
-            '储存条件',
-            '更新记录'
-        ],
-        select:[false,
-            true,
-            false,
-            true,
-            true,
-            true,
-            true,
-            false,
-            false,
-            true,
-            false,
-            true,
-            false,
-            false,
-            false
-        ],
-        value: [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]
-    };
-        $scope.newReagentQuery = {
-            key:['ReagentId',
-            'ProductDay',
-            'ReagentType',
-            'ExpiryDay',
-            'ReagentName',
-            'ReagentTest',
-            'SaveCondition',
-            'Description',
-            'RevisionInfo'
-            ],
-            name: [
-                '试剂编号',
-                '生产日期',
-                '试剂类型',
-                '保质期',
-                '试剂名字',
-                '试剂适用性试验',
-                '储存方法',
-                '冗余信息',
-                '更新记录'
-            ],
-            select: [true,true,true,true,true,true,true,true,true],
-            value: [null,null,null,null,null,null,null,null,null]
-
-        };
-        $scope.newTaskQuery = {};
-
-
-
-        //Socket watch API
-        SocketService.on('connect', function(){
+        SocketService.on('connect', function() {
             // console.log('Connected');
-            $scope.status = "Connected";
-            // SocketService.emit("get workflow");
+            $scope.status = "Connected"
         });
 
-        SocketService.on('disconnect',function(){
+        SocketService.on('disconnect', function() {
             $scope.status = "No Connection"
         });
 
-        SocketService.on('workflow', function(data){
-
-            // $scope.operationName = data.operations;
-            // $scope.operationCode = data.operationCode;
-            // $scope.instrument = data.instrument;
-            // $scope.instrumentCode = data.instrumentCode;
-            $scope.data = data;
-            console.log("already");
-            // console.log($scope.data.operationName);
-            $scope.flag = true;
-        });
-
-        SocketService.on('message', function(data){
+        SocketService.on('message', function(data) {
             // console.log(data);
             $scope.status = "Connected";
             var myChart = echarts.init(document.getElementById('main'));
@@ -784,7 +454,7 @@
                 },
                 tooltip: {},
                 legend: {
-                    data:['params']
+                    data: ['params']
                 },
                 xAxis: {
                     data: []
@@ -803,536 +473,559 @@
         });
 
 
+        $scope.isolator1 = {
+            name: "进料区",
+            env_names: ["进料区温度", "进料区湿度", "进料区压力", "进料区风速", "进料区过氧化氢浓度"],
+            env_codes: ["1", "2", "3", "4", "5"],
+            env_status: [1, 1, 1, 1, 1],
+            instr_names: [
+                "进料区灭菌器",
 
-        //Restful APIs
-        $scope.getWorkflow = function(){
-            SocketService.emit('get workflow',"1");
-            console.log("emited");
+                "进料区与进料待加工区之间的门",
+                "进料区导轨"
+
+
+            ],
+            instr_codes: [
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"
+            ],
+            instr_status: [
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"
+            ]
+
 
         };
 
+        $scope.isolator2 = {
+            name: "进料待加工区",
+            env_names: ["进料待加工区温度", "进料待加工区湿度", "进料待加工区压力", "进料待加工区风速", "进料待加工区过氧化氢浓度"],
+            env_codes: ["1", "2", "3", "4", "5"],
+            env_status: [1, 1, 1, 1, 1],
+            instr_names: [
 
-        //插入新的任务
-        $scope.insertTask = function(index){
-            console.log({taskName:$scope.procedure[index], sample:$scope.selected.sample + '|' + $scope.selected.reagent, startTime: '', endTime:''});
+                "进料待加工区灭菌器",
+                "加工区灭菌器",
+                "待出料区灭菌器",
 
-            switch(index){
-                case 0: $scope.taskList.push({taskName:$scope.procedure[index], sample:'NA', startTime: '', endTime:''}); break;
-                case 1: $scope.taskList.push({taskName:$scope.procedure[index], sample:'NA', startTime: '', endTime:''}); break;
-                case 2: $scope.taskList.push({taskName:$scope.procedure[index], sample:$scope.selected.sample + '|' + $scope.selected.reagent, startTime: '', endTime:''}); break;
-                case 3: $scope.taskList.push({taskName:$scope.procedure[index], sample:$scope.selected.sample + '|' + $scope.selected.reagent, startTime: '', endTime:''}); break;
-            }
-            // $scope.taskList.push({taskName:'集菌', sample:'白色枯草柑菌', startTime: '出生', endTime:'死亡'});
-            $('#myModal').modal('hide');
-            $rootScope.$apply();
+
+
+
+
+            ],
+            instr_codes: [
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"
+            ],
+            instr_status: [
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"
+            ]
+
+
         };
 
-        //插入新样品
-        $scope.insertSample = function (query) {
+        $scope.isolator3 = {
+            name: "加工区",
+            env_names: ["加工区温度", "加工区湿度", "加工区压力", "加工区风速", "加工区过氧化氢浓度"],
+            env_codes: ["1", "2", "3", "4", "5"],
+            env_status: [1, 1, 1, 1, 1],
+            instr_names: [
 
-            var realQuery = {};
-            console.log(query);
-            query.key.forEach(function(value, i){
-                if (query.select[i] == true)
-                    realQuery[value] = query.value[i];
-            });
-            console.log(realQuery);
-            var time = new Date();
-            objno = "SID";
-            objno += time.getFullYear().toString();
-            objno += (time.getMonth() + 1 < 10) ? ('0' + (time.getMonth() + 1)).toString() : (time.getMonth() + 1).toString();
-            objno += (time.getDate() < 10) ? ('0' + time.getDate()).toString() : (time.getDate()).toString();
-            objno += "000" + $scope.sampleList.length.toString();
-            console.log(objno);
-            var temp = {sampleName: realQuery.ObjectName, supplier: realQuery.ObjCompany, category: realQuery.ObjectType, ObjectNo:objno};
-            $scope.sampleList.push(temp);
-            $rootScope.$apply();
+
+                "加工区灭菌器",
+
+
+
+                "出料区导轨",
+                "待出料区与出料区之间的门"
+
+            ],
+            instr_codes: [
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"
+            ],
+            instr_status: [
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"
+            ]
+
+
+        };
+
+        $scope.isolator4 = {
+            name: "待出料区",
+            env_names: ["待出料区温度", "待出料区湿度", "待出料区压力", "待出料区风速", "待出料区过氧化氢浓度"],
+            env_codes: ["1", "2", "3", "4", "5"],
+            env_status: [1, 1, 1, 1, 1],
+            instr_names: [
+
+                "待出料区灭菌器",
+
+
+
+                "待出料区与出料区之间的门"
+
+            ],
+            instr_codes: [
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"
+            ],
+            instr_status: [
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"
+            ]
+
+
+        };
+        $scope.isolator5 = {
+            name: "出料区",
+            env_names: ["出料区温度", "出料区湿度", "出料区压力", "出料区风速", "出料区过氧化氢浓度"],
+            env_codes: ["1", "2", "3", "4", "5"],
+            env_status: [1, 1, 1, 1, 1],
+            instr_names: [
+
+                "出料区灭菌器",
+
+
+                "出料区导轨"
+
+            ],
+            instr_codes: [
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"
+            ],
+            instr_status: [
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"
+            ]
+
+        };
+
+        $scope.isolator = {
+            name: "出料区",
+            env_names: ["温度", "湿度", "压力", "风速", "过氧化氢浓度"],
+            env_codes: ["1", "2", "3", "4", "5"],
+            env_status: [1, 1, 1, 1, 1],
+            instr_names: [
+                "进料区灭菌器",
+                "进料待加工区灭菌器",
+                "加工区灭菌器",
+                "待出料区灭菌器",
+                "出料区灭菌器",
+                "进料区与进料待加工区之间的门",
+                "进料区导轨",
+                "加工区导轨",
+                "出料区导轨",
+                "待出料区与出料区之间的门",
+                "机械臂"
+            ],
+            instr_codes: [
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"
+            ],
+            instr_status: [
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"
+            ]
+
+
+        };
+        $scope.incubator = {
+            name: "培养箱",
+            env_names: ["培养箱温度"],
+            env_codes: ["1"],
+            env_status: ["35 ℃"],
+            instr_names: [
+                "培养箱门",
+                "上层外圈转盘",
+                "上层内圈转盘",
+                "下层外圈转盘",
+                "下层内圈转盘",
+                "顶空电源",
+                "视觉光源",
+                "工业相机",
+                "顶空分析",
+                "支架电机"
+            ],
+            instr_codes: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
+            instr_status: [
+                "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
+            ]
+        };
+
+        $scope.printcode = function(code, name) {
+            // console.log(code);
+            SocketService.emit('get params', code);
+            $scope.text = name;
+
         }
-
-        //插入新试剂
-        $scope.insertReagent = function () {
-
-        };
-
-        $scope.stop = function(code,index){
-            bootbox.confirm({
-                size: "small",
-                title: "中止操作",
-                message: "是否中止操作" + code,
-                callback: function(res){
-                    // console.log(res);
-                    if(res){
-                        for (var i = 0 ; i<$scope.data.process.length; i++)
-                        {
-                            if(i>=index){
-                                $scope.data.process[i] = 4;
-                            }
-                        }
-                        bootbox.alert("中止")
-                    }
-
-                    /* your callback code */ }
-            })
-        };
-
-        $scope.delete = function(index){
-            bootbox.confirm({
-                size: "small",
-                title: "取消操作",
-                message: "是否取消操作" + $scope.taskList[index].taskName,
-                callback: function(res){
-                    if(res){
-                        // while($scope.data.process.length == index + 1){
-                        //     $scope.data.process.length.pop();
-                        // }
-
-                        // for (any in $scope.data){
-                        //     console.log(any);
-                        //     $scope.data[any].splice(index,1);
-                        // }
-
-
-                        $scope.taskList.splice(index,1);
-                        $rootScope.$apply();
-                    }
-                    /* your callback code */ }
-            })
-
-
-        };
-
-        $scope.emergencyStop = function(){
-            bootbox.confirm({
-                size: "small",
-                title: "取消操作",
-                message: "确认紧急暂停" ,
-                callback: function(res){
-                    if(res){
-                        for (var i = 0 ; i<$scope.data.process.length; i++)
-                        {
-                            if($scope.data.process[i] == 2){
-                                $scope.data.process[i] = 4;
-                            }
-
-                        }
-                    }
-                    $scope.$apply(); }
-            })
-
-        };
-
-        $scope.update = function(){
-            bootbox.confirm({
-                size: "small",
-                title: "清除已完成项目",
-                message: "确认清除已完成项目" ,
-                callback: function(res){
-                    if(res){
-                        for (var i = $scope.data.process.length - 1 ; i>=0; i--)
-                        {
-                            if($scope.data.process[i] == 1 || $scope.data.process[i] == 4 ){
-                                $scope.data.process[i] = 0;
-                            }
-
-                        }
-                    }
-                    $scope.$apply(); }
-            })
-        };
-
-
-
-
-
-        //样品记录表-插数据
-        $scope.PostNewSample = function(newSampleQuery){
-            // console.log(newSampleQuery);
-            v = newSampleQuery.value;
-
-            // 产品编号
-
-            // 供应商批次 001
-
-            // 人员
-
-            // 时间
-
-            ob = {};
-
-            for (var n in newSampleQuery.key){
-                ob[key] = newSampleQuery.value
-            }
-
-            //post ob
-
-            $('#myModal2').modal('hide');
-        }
-
-
-        //获得没有取样的样品列表
-
-
-
-
-
     }])
 
-// 主菜单栏(个人信息)--张桠童
-.controller('MainCtrl',['$scope','CONFIG','Storage','Data','UserService','NgTableParams','$state',
-  function($scope,CONFIG,Storage,Data,UserService,NgTableParams,$state){
-    $scope.userInfo = {};
-    var userInfoQuery = {
-        "UserId": Storage.get('UID'),
-        "Identify": 0,
-        "PhoneNo": 0,
-        "UserName": 1,
-        "Role": 1,
-        "Password": 0,
-        "LastLoginTime": 1,
-        "RevisionInfo": 0
-    };
-    var promise = UserService.GetUserInfo(userInfoQuery);
-    promise.then(function(data){
-        $scope.userInfo = data;
-        // console.log($scope.userInfo);
-    },function(err){});
-    $scope.toChangePW = function(){
-        $state.go('changePassword');
-    };
-    $scope.ifOut = function(){
-        $('#myModal1').modal('show');
-    };
-    $scope.toLogin = function(){
-        $('#myModal1').modal('hide').on('hidden.bs.modal', function () {
-            Storage.rm("UID");
-            $state.go("login");
-        });
-    };
-}])
-// 样品信息表--张桠童
-.controller('samplingCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams','$state','extraInfo',
-  function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams,$state,extraInfo){
-    var sampleQuery = {"ObjectNo": null,
-        "ObjCompany": null,
-        "ObjIncuSeq": null,
-        "ObjectName": null,
-        "ObjectType": null,
-        "SamplingPeople": null,
-        "SamplingTimeS": null,
-        "SamplingTimeE": null,
-        "SamplingWay": null,
-        "SamplingTool": null,
-        "SamAmount": null,
-        "DevideWay": null,
-        "SamContain": null,
-        "Warning": null,
-        "SamSave": null,
-        "ReDateTimeS": null,
-        "ReDateTimeE": null,
-        "ReTerminalIP": null,
-        "ReTerminalName": null,
-        "ReUserId": null,
-        "ReIdentify": null,
-        "GetObjectName": 1,
-        "GetObjectType": 1,
-        "GetSamplingPeople": 1,
-        "GetSamplingTime": 1,
-        "GetSamplingWay": 1,
-        "GetSamplingTool": 1,
-        "GetSamAmount": 1,
-        "GetDevideWay": 1,
-        "GetSamContain": 1,
-        "GetWarning": 1,
-        "GetSamSave": 1,
-        "GetRevisionInfo": 1};
-    var promise = ItemInfo.GetSamplesInfo(sampleQuery);
-    promise.then(function(data){
-        var sampleInfo = data;
-        // console.log(sampleInfo);
-        $scope.tableParams = new NgTableParams({
-                count:10
-            },
-            {   counts:[],
-                dataset: sampleInfo
-            });
-    },function(err){});
-    $scope.toTestResult = function(ObjectNo,ObjCompany,ObjIncuSeq){
-      $state.go('main.data.testResult');
-      Storage.set('ObjectNo', ObjectNo);
-      Storage.set('ObjCompany', ObjCompany);
-      Storage.set('ObjIncuSeq', ObjIncuSeq);
-    };
-}])
-// 新建样品--张桠童
-.controller('newSampleCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams','$state','extraInfo',
-  function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams,$state,extraInfo){
-    $scope.sample = {};
-    var getJsonLength=function(jsonData){
-        var jsonLength = 0;
-        for(var item in jsonData){
-            jsonLength++;
-        }
-        return jsonLength;
-    }
-    $scope.test=function(){
-        var formLength = getJsonLength($scope.sample);
-        if(formLength==7){
-            $scope.sample.TerminalIP=extraInfo.postInformation().TerminalIP;
-            $scope.sample.TerminalName=extraInfo.postInformation().TerminalName;
-            $scope.sample.revUserId=extraInfo.postInformation().revUserId;
-            // console.log($scope.sample);
-            // console.log(formLength);
-            var promise = ItemInfo.SetSampleData($scope.sample);
-            promise.then(function(data){
-                console.log(data[0]);
-                if(data[0]=="插入成功"){
-                    $('#Modal_newSampleDialog').modal('show').on('shown.bs.modal', function(e){
-                        $('#Modal_newSampleDialog').modal('hide').on('hidden.bs.modal', function(e){
-                            $state.go('main.data.sampling');
-                        })
-                    });
-                }
-            },function(err){});
-        };
-    };
-}])
-// 检测结果表--张桠童
-.controller('testResultCtrl',['$scope','CONFIG','Storage','Data','Result','NgTableParams','$timeout','$state',
-  function($scope,CONFIG,Storage,Data,Result,NgTableParams,$timeout,$state){
-    // console.log(Storage.get('ObjectNo'));
-    var testResultQuery = {
-      "TestId": null,
-      "ObjectNo": null,
-      "ObjCompany": null,
-      "ObjIncuSeq": null,
-      "TestType": null,
-      "TestStand": null,
-      "TestEquip": null,
-      "Description": null,
-      "CollectStartS": null,
-      "CollectStartE": null,
-      "CollectEndS": null,
-      "CollectEndE": null,
-      "TestTimeS": null,
-      "TestTimeE": null,
-      "TestResult": null,
-      "TestPeople": null,
-      "ReStatus": null,
-      "RePeople": null,
-      "ReTimeS": null,
-      "ReTimeE": null,
-      "ReDateTimeS": null,
-      "ReDateTimeE": null,
-      "ReTerminalIP": null,
-      "ReTerminalName": null,
-      "ReUserId": null,
-      "ReIdentify": null,
-      "GetObjectNo": 1,
-      "GetObjCompany": 1,
-      "GetObjIncuSeq": 1,
-      "GetTestType": 1,
-      "GetTestStand": 1,
-      "GetTestEquip": 1,
-      "GetDescription": 1,
-      "GetCollectStart": 1,
-      "GetCollectEnd": 1,
-      "GetTestTime": 1,
-      "GetTestResult": 1,
-      "GetTestPeople": 1,
-      "GetReStatus": 1,
-      "GetRePeople": 1,
-      "GetReTime": 1,
-      "GetRevisionInfo": 1
-    };
-    if (Storage.get('ObjectNo')==null) {
-      var promise = Result.GetTestResultInfo(testResultQuery);
-      promise.then(function(data){
-          var testResult = data;
-          // console.log(testResult);
-          $scope.tableParams = new NgTableParams({
-                count:10,
-            },
-            {   counts:[],
-                dataset: testResult
-            });
-      },function(err){});
-    }
-    else{
-      var promise = Result.GetTestResultInfo(testResultQuery);
-      promise.then(function(data){
-          var testResult = data;
-          // console.log(testResult);
-          $scope.tableParams = new NgTableParams({
-                count:10,
-                filter:{ ObjectNo: Storage.get('ObjectNo'),
-                         ObjCompany: Storage.get('ObjCompany'),
-                         ObjIncuSeq: Storage.get('ObjIncuSeq')
-                        },
-                sorting:{CollectStart:"desc"}
-                // 升序："asc"；降序："desc"
-            },
-            {   counts:[],
-                dataset: testResult
-            });
-          $timeout(function(){
-            // console.log($scope.tableParams.data.length);
-            if($scope.tableParams.data.length>0 && $scope.tableParams.data[0].TestResult==null){
-              $('#myModal').modal('show');
+    .controller('MonitorCtrl', ['UserService', '$scope', '$state', 'Storage', '$timeout', 'SocketService', '$rootScope',
+        function(UserService, $scope, $state, Storage, $timeout, SocketService, $rootScope) {
+
+
+            $scope.status = "No Connection";
+            $scope.flag = false;
+            $scope.selected = { sample: '', reagent: '' };
+            $scope.procedure = ['隔离器灭菌', '自检/复位', '集菌', '培养箱检测'];
+            $scope.taskList = [{ taskName: '全仓灭菌', sample: 'NA', startTime: '', endTime: '' },
+                { taskName: '全部复位/自检', sample: 'NA', startTime: '', endTime: '' },
+                { taskName: '集菌', sample: 'SID201705170001', startTime: '出生', endTime: '死亡' },
+                { taskName: '培养', sample: 'SID201705170001', startTime: '出生', endTime: '死亡' }
+            ];
+            $scope.sampleList = [{ sampleName: '参麦注射液', supplier: '青春宝', category: '处方药品', ObjectNo: 'SID201705170001' },
+                { sampleName: '丹参注射液', supplier: '青春宝', category: '处方药品', ObjectNo: 'SID201705170002' },
+                { sampleName: '香丹注射液', supplier: '青春宝', category: '处方药品', ObjectNo: 'SID201705170003' },
+                { sampleName: '鱼腥草注射液', supplier: '青春宝', category: '处方药品', ObjectNo: 'SID201705170004' },
+                { sampleName: '抗衰老口服液', supplier: '青春宝', category: '非处方药品', ObjectNo: 'SID201705170005' }
+            ];
+            $scope.reagentList = [{ ReagentName: '葡萄糖', ExpiryDay: new Date(), ReagentType: '培养基', ReagentId: 'RID201705170001' },
+                { ReagentName: '金黄色葡萄球菌', ExpiryDay: new Date(), ReagentType: '菌液', ReagentId: 'RID201705170002' },
+                { ReagentName: '冲洗液', ExpiryDay: new Date(), ReagentType: '其他', ReagentId: 'RID201705170003' }
+            ];
+
+
+            $scope.newSampleQuery = {
+                key: ['ObjectNo',
+                    'ObjCompany',
+                    'ObjIncuSeq',
+                    'ObjectName',
+                    'ObjectType',
+                    'SamplingPeople',
+                    'SamplingTime',
+                    'SamplingWay',
+                    'SamplingTool',
+                    'SamAmount',
+                    'DevideWay',
+                    'SamContain',
+                    'Warning',
+                    'SamSave',
+                    'RevisionInfo'
+                ],
+                name: ['产品编号',
+                    '供应商',
+                    '培养批次',
+                    '产品名字',
+                    '产品类型',
+                    '样品记录人员',
+                    '样品记录时间',
+                    '取样方法',
+                    '取样器具',
+                    '取样量',
+                    '分样方法',
+                    '样品容器',
+                    '注意事项',
+                    '储存条件',
+                    '更新记录'
+                ],
+                select: [false,
+                    true,
+                    false,
+                    true,
+                    true,
+                    true,
+                    true,
+                    false,
+                    false,
+                    true,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false
+                ],
+                value: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
             };
-          });
-      },function(err){});
-      $scope.toMonitors = function(){
-        $('#myModal').modal('hide').on('hidden.bs.modal', function () {
-            $state.go('main.monitors.realTime');
-        });
-      };
-    }
-}])
-// 试剂信息表--张桠童
-.controller('reagentCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams',
-  function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams){
-    var ReagentsQuery = {
-        "ReagentId": null,
-        "ProductDayS": null,
-        "ProductDayE": null,
-        "ReagentType": null,
-        "ExpiryDayS": null,
-        "ExpiryDayE": null,
-        "ReagentName": null,
-        "ReagentTest": null,
-        "SaveCondition": null,
-        "Description": null,
-        "ReDateTimeS": null,
-        "ReDateTimeE": null,
-        "ReTerminalIP": null,
-        "ReTerminalName": null,
-        "ReUserId": null,
-        "ReIdentify": null,
-        "GetProductDay": 1,
-        "GetReagentType": 1,
-        "GetExpiryDay": 1,
-        "GetReagentName": 1,
-        "GetReagentTest": 1,
-        "GetSaveCondition": 1,
-        "GetDescription": 1,
-        "GetRevisionInfo": 1
-    };
-    var promise = ItemInfo.GetReagentsInfo(ReagentsQuery);
-    promise.then(function(data){
-        var Reagents = data;
-        // console.log(Reagents);
-        $scope.tableParams = new NgTableParams({
-                count:10
-            },
-            {   counts:[],
-                dataset: Reagents
+            $scope.newReagentQuery = {
+                key: ['ReagentId',
+                    'ProductDay',
+                    'ReagentType',
+                    'ExpiryDay',
+                    'ReagentName',
+                    'ReagentTest',
+                    'SaveCondition',
+                    'Description',
+                    'RevisionInfo'
+                ],
+                name: [
+                    '试剂编号',
+                    '生产日期',
+                    '试剂类型',
+                    '保质期',
+                    '试剂名字',
+                    '试剂适用性试验',
+                    '储存方法',
+                    '冗余信息',
+                    '更新记录'
+                ],
+                select: [true, true, true, true, true, true, true, true, true],
+                value: [null, null, null, null, null, null, null, null, null]
+
+            };
+            $scope.newTaskQuery = {};
+
+
+
+            //Socket watch API
+            SocketService.on('connect', function() {
+                // console.log('Connected');
+                $scope.status = "Connected";
+                // SocketService.emit("get workflow");
             });
-    },function(err){});
-}])
-// 新建试剂--张桠童
-.controller('newReagentCtrl',['$scope','CONFIG','Storage','Data','UserService','ItemInfo','NgTableParams','$state','extraInfo',
-  function($scope,CONFIG,Storage,Data,UserService,ItemInfo,NgTableParams,$state,extraInfo){
-    $scope.reagent = {};
-    $scope.reagenttypes = {};
 
-    var getJsonLength=function(jsonData){
-        var jsonLength = 0;
-        for(var item in jsonData){
-            jsonLength++;
-        }
-        return jsonLength;
-    };
+            SocketService.on('disconnect', function() {
+                $scope.status = "No Connection"
+            });
 
-    var promise = UserService.GetReagentType();
-    promise.then(function(data){
-        // console.log(data);
-        $scope.reagenttypes = data;
-    },function(err){});
+            SocketService.on('workflow', function(data) {
 
-    $scope.test=function(){
-        var formLength = getJsonLength($scope.reagent);
-        console.log(formLength);
-        if(formLength>=6){
-            $scope.reagent.TerminalIP=extraInfo.postInformation().TerminalIP;
-            $scope.reagent.TerminalName=extraInfo.postInformation().TerminalName;
-            $scope.reagent.revUserId=extraInfo.postInformation().revUserId;
-            var promise = ItemInfo.CreateReagentId($scope.reagent.ReagentType);
-            promise.then(function(data){
-                $scope.reagent.ReagentId = data.result;
-                console.log($scope.reagent);
-                var promise1 = ItemInfo.SetReagentData($scope.reagent);
-                promise1.then(function(data){
-                    // console.log(data);
-                    if(data.result=="插入成功"){
-                        $('#Modal_newreagentDialog').modal('show').on('shown.bs.modal', function(e){
-                            $('#Modal_newreagentDialog').modal('hide').on('hidden.bs.modal', function(e){
-                                $state.go('main.data.reagent');
-                            })
-                        });
+                // $scope.operationName = data.operations;
+                // $scope.operationCode = data.operationCode;
+                // $scope.instrument = data.instrument;
+                // $scope.instrumentCode = data.instrumentCode;
+                $scope.data = data;
+                console.log("already");
+                // console.log($scope.data.operationName);
+                $scope.flag = true;
+            });
+
+            SocketService.on('message', function(data) {
+                // console.log(data);
+                $scope.status = "Connected";
+                var myChart = echarts.init(document.getElementById('main'));
+                myChart.showLoading();
+                // 指定图表的配置项和数据
+                var option = {
+                    title: {
+                        text: $scope.text
+                    },
+                    tooltip: {},
+                    legend: {
+                        data: ['params']
+                    },
+                    xAxis: {
+                        data: []
+                    },
+                    yAxis: {},
+                    series: [{
+                        name: '销量',
+                        type: 'line',
+                        data: data.data
+                    }]
+                };
+
+                // 使用刚指定的配置项和数据显示图表。
+                myChart.setOption(option);
+                myChart.hideLoading();
+            });
+
+
+
+            //Restful APIs
+            $scope.getWorkflow = function() {
+                SocketService.emit('get workflow', "1");
+                console.log("emited");
+
+            };
+
+
+            //插入新的任务
+            $scope.insertTask = function(index) {
+                console.log({ taskName: $scope.procedure[index], sample: $scope.selected.sample + '|' + $scope.selected.reagent, startTime: '', endTime: '' });
+
+                switch (index) {
+                    case 0:
+                        $scope.taskList.push({ taskName: $scope.procedure[index], sample: 'NA', startTime: '', endTime: '' });
+                        break;
+                    case 1:
+                        $scope.taskList.push({ taskName: $scope.procedure[index], sample: 'NA', startTime: '', endTime: '' });
+                        break;
+                    case 2:
+                        $scope.taskList.push({ taskName: $scope.procedure[index], sample: $scope.selected.sample + '|' + $scope.selected.reagent, startTime: '', endTime: '' });
+                        break;
+                    case 3:
+                        $scope.taskList.push({ taskName: $scope.procedure[index], sample: $scope.selected.sample + '|' + $scope.selected.reagent, startTime: '', endTime: '' });
+                        break;
+                }
+                // $scope.taskList.push({taskName:'集菌', sample:'白色枯草柑菌', startTime: '出生', endTime:'死亡'});
+                $('#myModal').modal('hide');
+                $rootScope.$apply();
+            };
+
+            //插入新样品
+            $scope.insertSample = function(query) {
+
+                var realQuery = {};
+                console.log(query);
+                query.key.forEach(function(value, i) {
+                    if (query.select[i] == true)
+                        realQuery[value] = query.value[i];
+                });
+                console.log(realQuery);
+                var time = new Date();
+                objno = "SID";
+                objno += time.getFullYear().toString();
+                objno += (time.getMonth() + 1 < 10) ? ('0' + (time.getMonth() + 1)).toString() : (time.getMonth() + 1).toString();
+                objno += (time.getDate() < 10) ? ('0' + time.getDate()).toString() : (time.getDate()).toString();
+                objno += "000" + $scope.sampleList.length.toString();
+                console.log(objno);
+                var temp = { sampleName: realQuery.ObjectName, supplier: realQuery.ObjCompany, category: realQuery.ObjectType, ObjectNo: objno };
+                $scope.sampleList.push(temp);
+                $rootScope.$apply();
+            }
+
+            //插入新试剂
+            $scope.insertReagent = function() {
+
+            };
+
+            $scope.stop = function(code, index) {
+                bootbox.confirm({
+                    size: "small",
+                    title: "中止操作",
+                    message: "是否中止操作" + code,
+                    callback: function(res) {
+                        // console.log(res);
+                        if (res) {
+                            for (var i = 0; i < $scope.data.process.length; i++) {
+                                if (i >= index) {
+                                    $scope.data.process[i] = 4;
+                                }
+                            }
+                            bootbox.alert("中止")
+                        }
+
+                        /* your callback code */
                     }
-                },function(err){});
-            },function(err){});
-        };
-    };
-}])
-// 仪器信息表--张桠童
-.controller('instrumentCtrl',['$scope','CONFIG','Storage','Data','ItemInfo','NgTableParams',
-  function($scope,CONFIG,Storage,Data,ItemInfo,NgTableParams){
-    var IsolatorsQuery = {
-        "IsolatorId": null,
-        "ProductDayS": null,
-        "ProductDayE": null,
-        "EquipPro": null,
-        "InsDescription": null,
-        "ReDateTimeS": null,
-        "ReDateTimeE": null,
-        "ReTerminalIP": null,
-        "ReTerminalName": null,
-        "ReUserId": null,
-        "ReIdentify": null,
-        "GetProductDay": 1,
-        "GetEquipPro": 1,
-        "GetInsDescription": 1,
-        "GetRevisionInfo": 1
-    };
-    var promise1 = ItemInfo.GetIsolatorsInfo(IsolatorsQuery);
-    promise1.then(function(data){
-        var Isolators = data;
-        // console.log(Isolators);
-        $scope.tableParams1 = new NgTableParams({
-                count:10
-            },
-            {   counts:[],
-                dataset: Isolators
-            });
-    },function(err){});
-    var IncubatorsQuery = {
-        "IncubatorId": null,
-        "ProductDayS": null,
-        "ProductDayE": null,
-        "EquipPro": null,
-        "InsDescription": null,
-        "ReDateTimeS": null,
-        "ReDateTimeE": null,
-        "ReTerminalIP": null,
-        "ReTerminalName": null,
-        "ReUserId": null,
-        "ReIdentify": null,
-        "GetProductDay": 1,
-        "GetEquipPro": 1,
-        "GetInsDescription": 1,
-        "GetRevisionInfo": 1
-    };
-    var promise2 = ItemInfo.GetIncubatorsInfo(IncubatorsQuery);
-    promise2.then(function(data){
-        var Incubators = data;
-        // console.log(Incubators);
-        $scope.tableParams2 = new NgTableParams({
-                count:10
-            },
-            {   counts:[],
-                dataset: Incubators
-            });
-    },function(err){});
-}])
+                })
+            };
+
+            $scope.delete = function(index) {
+                bootbox.confirm({
+                    size: "small",
+                    title: "取消操作",
+                    message: "是否取消操作" + $scope.taskList[index].taskName,
+                    callback: function(res) {
+                        if (res) {
+                            // while($scope.data.process.length == index + 1){
+                            //     $scope.data.process.length.pop();
+                            // }
+
+                            // for (any in $scope.data){
+                            //     console.log(any);
+                            //     $scope.data[any].splice(index,1);
+                            // }
+
+
+                            $scope.taskList.splice(index, 1);
+                            $rootScope.$apply();
+                        }
+                        /* your callback code */
+                    }
+                })
+
+
+            };
+
+            $scope.emergencyStop = function() {
+                bootbox.confirm({
+                    size: "small",
+                    title: "取消操作",
+                    message: "确认紧急暂停",
+                    callback: function(res) {
+                        if (res) {
+                            for (var i = 0; i < $scope.data.process.length; i++) {
+                                if ($scope.data.process[i] == 2) {
+                                    $scope.data.process[i] = 4;
+                                }
+
+                            }
+                        }
+                        $scope.$apply();
+                    }
+                })
+
+            };
+
+            $scope.update = function() {
+                bootbox.confirm({
+                    size: "small",
+                    title: "清除已完成项目",
+                    message: "确认清除已完成项目",
+                    callback: function(res) {
+                        if (res) {
+                            for (var i = $scope.data.process.length - 1; i >= 0; i--) {
+                                if ($scope.data.process[i] == 1 || $scope.data.process[i] == 4) {
+                                    $scope.data.process[i] = 0;
+                                }
+
+                            }
+                        }
+                        $scope.$apply();
+                    }
+                })
+            };
+
+
+
+
+
+            //样品记录表-插数据
+            $scope.PostNewSample = function(newSampleQuery) {
+                // console.log(newSampleQuery);
+                v = newSampleQuery.value;
+
+                // 产品编号
+
+                // 供应商批次 001
+
+                // 人员
+
+                // 时间
+
+                ob = {};
+
+                for (var n in newSampleQuery.key) {
+                    ob[key] = newSampleQuery.value
+                }
+
+                //post ob
+
+                $('#myModal2').modal('hide');
+            }
+
+
+            //获得没有取样的样品列表
+
+
+
+
+
+        }
+    ])
+
+    // 主菜单栏(个人信息)--张桠童
+    .controller('MainCtrl', ['$scope', 'CONFIG', 'Storage', 'Data', 'UserService', 'NgTableParams', '$state',
+        function($scope, CONFIG, Storage, Data, UserService, NgTableParams, $state) {
+            $scope.userInfo = {};
+            var userInfoQuery = {
+                "UserId": Storage.get('UID'),
+                "Identify": 0,
+                "PhoneNo": 0,
+                "UserName": 1,
+                "Role": 1,
+                "Password": 0,
+                "LastLoginTime": 1,
+                "RevisionInfo": 0
+            };
+            var promise = UserService.GetUserInfo(userInfoQuery);
+            promise.then(function(data) {
+                $scope.userInfo = data;
+                // console.log($scope.userInfo);
+            }, function(err) {});
+            $scope.toChangePW = function() {
+                $state.go('changePassword');
+            };
+            $scope.ifOut = function() {
+                $('#myModal1').modal('show');
+            };
+            $scope.toLogin = function() {
+                $('#myModal1').modal('hide').on('hidden.bs.modal', function() {
+                    Storage.rm("UID");
+                    $state.go("login");
+                });
+            };
+        }
+    ])
 
