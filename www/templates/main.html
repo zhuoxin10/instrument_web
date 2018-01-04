@@ -1,5 +1,5 @@
 <div class="container-fluid" style="padding-right:0px;padding-left: 0px; ">
-    <h1 style="margin-left: 20px; margin-top: 20px; position: absolute;">临床决策支持系统</h1>
+    <h1 style="margin-left: 20px; margin-top: 20px; position: absolute;">智能集菌检测系统</h1>
     <div style="margin-top: 40px">
         <ul id="mytabs" class="nav nav-tabs" style="font-size: 15px">
             <li class="navbar-right" style="margin-right:25px">
@@ -29,7 +29,12 @@
                     </li>
                 </ul>
             </li>
-            <li class="navbar-right"><a href="#monitors" data-toggle="tab">监控</a> </li>
+            <uib-tabset class="navbar-right" active="myIndex">
+                <uib-tab index="0" heading="汇总数据" select="todata()" ng-show="flagdata"></uib-tab>
+                <uib-tab index="1" heading="监控" select="tomonitors()" ng-show="flagmonitors"></uib-tab>
+                <uib-tab index="2" heading="字典管理" select="todictionaries()" ng-show="flagdictionaries"></uib-tab>
+                <uib-tab index="3" heading="用户管理" select="tousers()" ng-show="flagusers"></uib-tab>
+            </uib-tabset>
         </ul>
     </div>
     <div ui-view style="margin-top: 10px"></div>

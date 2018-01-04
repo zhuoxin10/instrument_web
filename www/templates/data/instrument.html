@@ -1,0 +1,265 @@
+<div class="tab-pane fade in active" id="instrument">
+    <div class="col">
+        <div class="row-md-6" style="max-height: 500px">
+            <h3>隔离器信息表</h3>
+            <table ng-table="tableParams1" class="table" show-filter="true">
+                <tr ng-repeat="user in $data" style="text-align: center;">
+                    <td title="'隔离器编号'" filter="{ IsolatorId: 'text'}">
+                        {{user.IsolatorId}}</td>
+                    <td title="'生产日期'" filter="{ ProductDay: 'text'}" sortable="'ProductDay'">
+                        {{user.ProductDay|timeFormat:'YYYY-MM-DD h:m'}}</td>
+                    <td title="'生产厂家'" filter="{ EquipPro: 'text'}">
+                        {{user.EquipPro}}</td>
+                    <td title="'参数描述'" filter="{ InsDescription: 'text'}">
+                        {{user.InsDescription}}</td>
+                    <td title="'更新记录'" filter="{ revDateTime: 'text'}" sortable="'revDateTime'">
+                        <button type="button" class="btn btn-link" style="font-size:10px;text-decoration:none" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="更新记录" data-content="更新时间：{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}<br>终端IP：{{user.TerminalIP}}<br>终端名字：{{user.TerminalName}}<br>用户名：{{user.revUserId}}<br>身份证：{{user.revIdentify}}">{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}</button>
+                    </td>
+                    <td title="'详情'">
+                        <button class="btn btn-link" style="text-decoration:none; outline:none; padding:0px; border:0px; font-size:10px;" ng-click="toenvIsolator(user.IsolatorId)">环境</button>
+                        <button class="btn btn-link" style="text-decoration:none; outline:none; padding:0px; border:0px; font-size:10px;" ng-click="toopIsolator(user.IsolatorId)">操作</button>
+                        <button class="btn btn-link" style="text-decoration:none; outline:none; padding:0px; border:0px; font-size:10px;" ng-click="tobreakdownIsolator(user.IsolatorId)">故障</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="row-md-6" style="max-height: 500px">
+            <h3>培养箱信息表</h3>
+            <table ng-table="tableParams2" class="table" show-filter="true">
+                <tr ng-repeat="user in $data" style="text-align: center;">
+                    <td title="'培养箱编号'" filter="{ IncubatorId: 'text'}">
+                        {{user.IncubatorId}}</td>
+                    <td title="'生产日期'" filter="{ ProductDay: 'text'}" sortable="'ProductDay'">
+                        {{user.ProductDay|timeFormat:'YYYY-MM-DD h:m'}}</td>
+                    <td title="'生产厂家'" filter="{ EquipPro: 'text'}">
+                        {{user.EquipPro}}</td>
+                    <td title="'参数描述'" filter="{ InsDescription: 'text'}">
+                        {{user.InsDescription}}</td>
+                    <td title="'更新记录'" filter="{ revDateTime: 'text'}" sortable="'revDateTime'">
+                        <button type="button" class="btn btn-link" style="font-size:10px;text-decoration:none" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="更新记录" data-content="更新时间：{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}<br>终端IP：{{user.TerminalIP}}<br>终端名字：{{user.TerminalName}}<br>用户名：{{user.revUserId}}<br>身份证：{{user.revIdentify}}">{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}</button>
+                    </td>
+                    <td title="'详情'">
+                        <button class="btn btn-link" style="text-decoration:none; outline:none; padding:0px; border:0px; font-size:10px;" ng-click="toenvIncubator(user.IncubatorId)">环境</button>
+                        <button class="btn btn-link" style="text-decoration:none; outline:none; padding:0px; border:0px; font-size:10px;" ng-click="toopIncubator(user.IncubatorId)">操作</button>
+                        <button class="btn btn-link" style="text-decoration:none; outline:none; padding:0px; border:0px; font-size:10px;" ng-click="tobreakdownIncubator(user.IncubatorId)">故障</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- 隔离器环境详情 -->
+<div class="modal fade" id="env_Isolator" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="modal_close('#env_Isolator')">&times;</button>
+                <h3 class="modal-title" id="modal-title">隔离器环境详情</h3>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <table ng-table="envIsolatortableParams" class="table table-condensed table-bordered table-striped" style="margin-top: 10px;">
+                    <tr ng-repeat="user in $data" style="text-align: center;">
+                        <td title="'隔离器编号'">{{user.IsolatorId}}
+                        </td>
+                        <td title="'仓体编号'">{{user.CabinId}}
+                        </td>
+                        <td title="'测量时间'" sortable="'MeaTime'">{{user.MeaTime|timeFormat:'YYYY-MM-DD h:m'}}
+                        </td>
+                        <td title="'参数编码'">{{user.IsoCode}}
+                        </td>
+                        <td title="'参数值'">{{user.IsoValue}}
+                        </td>
+                        <td title="'更新记录'" sortable="'revDateTime'">
+                            <button type="button" class="btn btn-link" style="font-size:10px;text-decoration:none" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="更新记录" data-content="更新时间：{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}<br>终端IP：{{user.TerminalIP}}<br>终端名字：{{user.TerminalName}}<br>用户名：{{user.revUserId}}<br>身份证：{{user.revIdentify}}">{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-offset-3">
+                    <button type="button" class="btn btn-default" ng-click="modal_close('#env_Isolator')">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 隔离器操作详情 -->
+<div class="modal fade" id="op_Isolator" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="modal_close('#op_Isolator')">&times;</button>
+                <h3 class="modal-title" id="modal-title">隔离器操作详情</h3>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <table ng-table="opIsolatortableParams" class="table table-condensed table-bordered table-striped" style="margin-top: 10px;">
+                    <tr ng-repeat="user in $data" style="text-align: center;">
+                        <td title="'仪器编号'">{{user.EquipmentId}}
+                        </td>
+                        <td title="'操作编号'">{{user.OperationNo}}
+                        </td>
+                        <td title="'操作记录'" sortable="'OperationTime'">
+                            <button type="button" class="btn btn-link" style="font-size:10px;text-decoration:none" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="操作记录" data-content="操作时间：{{user.OperationTime|timeFormat:'YYYY-MM-DD h:m'}}<br>操作编码：{{user.OperationCode}}<br>操作参数：{{user.OperationValue}}<br>操作结果：{{user.OperationResult}}">{{user.OperationTime|timeFormat:'YYYY-MM-DD h:m'}}</button>
+                        </td>
+                        <td title="'更新记录'" sortable="'revDateTime'">
+                            <button type="button" class="btn btn-link" style="font-size:10px;text-decoration:none" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="更新记录" data-content="更新时间：{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}<br>终端IP：{{user.TerminalIP}}<br>终端名字：{{user.TerminalName}}<br>用户名：{{user.revUserId}}<br>身份证：{{user.revIdentify}}">{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-offset-3">
+                    <button type="button" class="btn btn-default" ng-click="modal_close('#op_Isolator')">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 隔离箱故障详情 -->
+<div class="modal fade" id="breakdown_Isolator" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="modal_close('#breakdown_Isolator')">&times;</button>
+                <h3 class="modal-title" id="modal-title">隔离箱故障详情</h3>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <table ng-table="breakdownIsolatortableParams" class="table table-condensed table-bordered table-striped" style="margin-top: 10px;">
+                    <tr ng-repeat="user in $data" style="text-align: center;">
+                        <td title="'故障时间'">{{user.BreakTime|timeFormat:'YYYY-MM-DD h:m'}}
+                        </td>
+                        <td title="'故障机器编号'">{{user.BreakId}}
+                        </td>
+                        <td title="'故障机器'">{{user.BreakEquip}}
+                        </td>
+                        <td title="'异常参数'">{{user.BreakPara}}
+                        </td>
+                        <td title="'异常值'">{{user.BreakValue}}
+                        </td>
+                        <td title="'故障原因'">{{user.BreakReason}}
+                        </td>
+                        <td title="'响应时间'">{{user.ResponseTime|timeFormat:'YYYY-MM-DD h:m'}}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-offset-3">
+                    <button type="button" class="btn btn-default" ng-click="modal_close('#breakdown_Isolator')">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 培养箱环境详情 -->
+<div class="modal fade" id="env_Incubator" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="modal_close('#env_Incubator')">&times;</button>
+                <h3 class="modal-title" id="modal-title">培养箱环境详情</h3>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <table ng-table="envIncubatortableParams" class="table table-condensed table-bordered table-striped" style="margin-top: 10px;">
+                    <tr ng-repeat="user in $data" style="text-align: center;">
+                        <td title="'培养箱编号'">{{user.IncubatorId}}
+                        </td>
+                        <td title="'测量时间'" sortable="'MeaTime'">{{user.MeaTime|timeFormat:'YYYY-MM-DD h:m'}}
+                        </td>
+                        <td title="'温度'" sortable="'Temperature'">{{user.Temperature}}
+                        </td>
+                        <td title="'更新记录'" sortable="'revDateTime'">
+                            <button type="button" class="btn btn-link" style="font-size:10px;text-decoration:none" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="更新记录" data-content="更新时间：{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}<br>终端IP：{{user.TerminalIP}}<br>终端名字：{{user.TerminalName}}<br>用户名：{{user.revUserId}}<br>身份证：{{user.revIdentify}}">{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-offset-3">
+                    <button type="button" class="btn btn-default" ng-click="modal_close('#env_Incubator')">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 培养箱操作详情 -->
+<div class="modal fade" id="op_Incubator" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="modal_close('#op_Incubator')">&times;</button>
+                <h3 class="modal-title" id="modal-title">培养箱操作详情</h3>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <table ng-table="opIncubatortableParams" class="table table-condensed table-bordered table-striped" style="margin-top: 10px;">
+                    <tr ng-repeat="user in $data" style="text-align: center;">
+                        <td title="'仪器编号'">{{user.EquipmentId}}
+                        </td>
+                        <td title="'操作编号'">{{user.OperationNo}}
+                        </td>
+                        <td title="'操作记录'" sortable="'OperationTime'">
+                            <button type="button" class="btn btn-link" style="font-size:10px;text-decoration:none" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="操作记录" data-content="操作时间：{{user.OperationTime|timeFormat:'YYYY-MM-DD h:m'}}<br>操作编码：{{user.OperationCode}}<br>操作参数：{{user.OperationValue}}<br>操作结果：{{user.OperationResult}}">{{user.OperationTime|timeFormat:'YYYY-MM-DD h:m'}}</button>
+                        </td>
+                        <td title="'更新记录'" sortable="'revDateTime'">
+                            <button type="button" class="btn btn-link" style="font-size:10px;text-decoration:none" popover id="popover1" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-html="true" data-title="更新记录" data-content="更新时间：{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}<br>终端IP：{{user.TerminalIP}}<br>终端名字：{{user.TerminalName}}<br>用户名：{{user.revUserId}}<br>身份证：{{user.revIdentify}}">{{user.revDateTime|timeFormat:'YYYY-MM-DD h:m'}}</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-offset-3">
+                    <button type="button" class="btn btn-default" ng-click="modal_close('#op_Incubator')">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 培养箱故障详情 -->
+<div class="modal fade" id="breakdown_Incubator" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="modal_close('#breakdown_Incubator')">&times;</button>
+                <h3 class="modal-title" id="modal-title">培养箱故障详情</h3>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <table ng-table="breakdownIncubatortableParams" class="table table-condensed table-bordered table-striped" style="margin-top: 10px;">
+                    <tr ng-repeat="user in $data" style="text-align: center;">
+
+                        <td title="'故障时间'">{{user.BreakTime|timeFormat:'YYYY-MM-DD h:m'}}
+                        </td>
+                        <td title="'故障机器编号'">{{user.BreakId}}
+                        </td>
+                        <td title="'故障机器'">{{user.BreakEquip}}
+                        </td>
+                        <td title="'异常参数'">{{user.BreakPara}}
+                        </td>
+                        <td title="'异常值'">{{user.BreakValue}}
+                        </td>
+                        <td title="'故障原因'">{{user.BreakReason}}
+                        </td>
+                        <td title="'响应时间'">{{user.ResponseTime|timeFormat:'YYYY-MM-DD h:m'}}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="form-group">
+                <div class="col-xs-offset-3">
+                    <button type="button" class="btn btn-default" ng-click="modal_close('#breakdown_Incubator')">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="nobreakdown">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content" style="width:400px;text-align: center; font-size: 20px">
+            暂无故障！
+        </div>
+    </div>
+</div>
+<script>
+$(function() {
+    $("#popover1").popover();
+});
+</script>

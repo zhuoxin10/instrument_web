@@ -1,0 +1,105 @@
+<div class="tab-pane fade in active" id="samplingtype">
+    <h3>样品类型维护</h3>
+    <ul id="mypills2" class="nav nav-pills nav-stacked" style="text-align: right;font-size: 25px;margin-top: -38px">
+        <button type="button" class="btn btn-primary" style="margin-right:20px;width: 100px" ng-click="tonew()">新增</button>
+</ul>    <table ng-table="tableParams" style="margin-top: 20px" class="table" show-filter="true">
+        <tr ng-repeat="type in $data" style="text-align: center;">
+            <td title="'种类'" filter="{ UserId: 'text'}" sortable="'Type'">
+                {{type.Type}}</td>
+            <td title="'种类名'" filter="{ UserName: 'text'}" sortable="'Name'">
+                {{type.Name}}</td>
+            <td title="'详情'">
+                <button class="btn btn-link" style="text-decoration:none; outline:none; padding:0px; border:0px; font-size:10px;" ng-click="toedit(type)">编辑</button>
+                <button class="btn btn-link" style="text-decoration:none; outline:none; padding:0px; border:0px; font-size:10px;" ng-click="todelete(type.Type)">删除</button>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- 新建样品类型modal -->
+<div class="modal fade" id="new_samplingtype" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="modal_close('#new_samplingtype')" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">新建样品类型</h3>
+            </div>
+            <div class="modal-body" style="margin-left: 15%;margin-right: 15%">
+                <form id="new_samplingtypeForm" name="cultureForm" class="form-horizontal">
+                    <div class="form-group">
+                        <label>
+                            <br>种类（缩写）：</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" class="form-control" ng-model="registerInfo.Type" placeholder="请输入种类（缩写）" />
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <br>种类名：</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" class="form-control" ng-model="registerInfo.Name" placeholder="请输入种类名" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button " class="btn btn-primary " ng-click="register()">确认新建</button>
+                <button type="button " style="margin-left: 20px" class="btn btn-default " ng-click="modal_close('#new_samplingtype')">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 编辑样品类型modal -->
+<div class="modal fade" id="edit_samplingtype" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="modal_close('#edit_samplingtype')" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">修改样品类型</h3>
+            </div>
+            <div class="modal-body" style="margin-left: 15%;margin-right: 15%">
+                <form id="new_samplingtypeForm" name="cultureForm" class="form-horizontal">
+                    <div class="form-group">
+                        <label>
+                            <br>种类（缩写）：</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" class="form-control" ng-model="editInfo.Type" placeholder="请输入种类（缩写）" />
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <br>种类名：</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" class="form-control" ng-model="editInfo.Name" placeholder="请输入种类名" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button " class="btn btn-primary " ng-click="edit()">确认修改</button>
+                <button type="button " style="margin-left: 20px" class="btn btn-default " ng-click="modal_close('#edit_samplingtype')">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 是否删除modal -->
+<div class="modal fade" id="DeleteOrNot" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="modal_close('#DeleteOrNot')">&times;</button>
+                <h3 class="modal-title" id="modal-title">警告</h3>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <span>确定删除该样品类型？</span>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="button" ng-click="delete()">确定</button>
+                <button class="btn btn-warning" type="button" ng-click="modal_close('#DeleteOrNot')">取消</button>
+            </div>
+        </div>
+    </div>
+</div>

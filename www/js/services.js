@@ -141,7 +141,7 @@
             return Storage.get('token');
         }
 
-        var Users = function() {
+        var UserService = function() {
             return $resource(CONFIG.baseUrl + ':path/:route', {
                 path: 'UserInfo'
             }, {
@@ -150,6 +150,7 @@
                 ChangePassword: { method: 'POST', params: { route: 'MstUserChangePassword' }, timeout: 10000 },
                 UpdateUserInfo: { method: 'POST', params: { route: 'MstUserUpdateUserInfo' }, timeout: 10000 },
                 GetUserInfo: { method: 'GET', params: { route: 'MstUserGetUserInfo' }, timeout: 10000 },
+                GetAllUserInfo: { method: 'POST', params: { route: 'MstUserGetUsersInfoByAnyProperty' }, timeout: 10000, isArray: true },
                 CreateNewUserId: { method: 'GET', params: { route: 'MstUserCreateNewUserId' }, timeout: 10000 },
                 GetUserByPhoneNo: { method: 'GET', params: { route: 'MstUserGetUserByPhoneNo' }, timeout: 10000 },
                 GetReagentType: { method: 'GET', params: { route: 'MstReagentTypeGetAll' }, timeout: 10000, isArray: true },
@@ -174,14 +175,21 @@
         var Result = function() {
             return $resource(CONFIG.baseUrl + ':path/:route', { path: 'Result' }, {
                 GetTestResultInfo: { method: 'POST', params: { route: 'ResTestResultGetResultInfosByAnyProperty' }, timeout: 10000, isArray: true },
-                                GetBreakDowns: { method: 'POST', params: { route: 'BreakDownGetBreakDownsByAnyProperty' }, timeout: 10000, isArray: true }
-
+                GetBreakDowns: { method: 'POST', params: { route: 'BreakDownGetBreakDownsByAnyProperty' }, timeout: 10000, isArray: true },
+                GetResultTubes: { method: 'POST', params: { route: 'ResIncubatorGetResultTubesByAnyProperty' }, timeout: 10000, isArray: true },
             })
         }
         // 仪器信息-张桠童
         var Operation = function() {
             return $resource(CONFIG.baseUrl + ':path/:route', { path: 'Operation' }, {
-                GetEquipmentOps: { method: 'POST', params: { route: 'OpEquipmentGetEquipmentOpsByAnyProperty' }, timeout: 10000, isArray: true }
+                GetEquipmentOps: { method: 'POST', params: { route: 'OpEquipmentGetEquipmentOpsByAnyProperty' }, timeout: 10000, isArray: true },
+                GetSampleFlow: { method: 'POST', params: { route: 'MstOperationOrdersBySampleType' }, timeout: 10000, isArray: true },
+                SetOperationInfo: { method: 'POST', params: { route: 'MstOperationSetData' }, timeout: 10000 },
+                GetOperationInfo: { method: 'POST', params: { route: 'MstOperationGetInfoByAnyProperty' }, timeout: 10000, isArray: true },
+                SetOperationOrder: { method: 'POST', params: { route: 'MstOperationOrderSetData' }, timeout: 10000 },
+                GetOperationOrder: { method: 'POST', params: { route: 'MstOperationOrdersBySampleType' }, timeout: 10000, isArray: true },
+                GetAllOpTypes: { method: 'POST', params: { route: 'MstAllOperationSampleTypes' }, timeout: 10000, isArray: true }
+
             })
         }
 
@@ -190,140 +198,28 @@
             $interval(function() {
                 abort = $q.defer();
 
-                serve.Users = Users();
+                serve.UserService = UserService();
                 serve.ItemInfo = ItemInfo();
                 serve.Result = Result();
                 serve.Operation = Operation();
             }, 0, 1);
         };
 
-        serve.Users = Users();
+        serve.UserService = UserService();
         serve.ItemInfo = ItemInfo();
         serve.Result = Result();
         serve.Operation = Operation();
         return serve;
     }])
 
-    //用户相关操作
-    .factory('UserService', ['$http', '$q', 'Storage', 'Data', 'CONFIG', function($http, $q, Storage, Data, CONFIG) {
-        // console.log("UserService Initializing");
 
-        var serve = {};
+    // 用户相关操作--new
+    .factory('UserService', ['$http', '$q', 'Data', 'Storage', function($http, $q, Data, Storage) {
+        var self = this;
 
-        var phoneReg = /^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
-
-        var idReg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
-
-
-        var UID = Storage.get("UID");
-
-        var phonenumber = '';
-
-        var personalInfo = {
-            UserId: UID,
-            Identify: 1,
-            PhoneNo: 1,
-            UserName: 1,
-            Role: 1,
-            Password: 0,
-            LastLoginTime: 1,
-            RevisionInfo: 1
-        };
-
-        var personalInfo_n = ["UserId", "Identify", "PhoneNo", "UserName", "Role", "Password", "LastLoginTime", "RevisionInfo"];
-
-        for (n in personalInfo)
-
-            serve.SetPhenoNo = function(no) {
-                phonenumber = no;
-                console.log("已经缓存电话号码");
-            };
-        serve.GetPhenoNo = function() {
-            return phonenumber;
-        };
-
-        serve.GetUID = function() {
-            return UID;
-        };
-        serve.SetUID = function(id) {
-            UID = id;
-            console.log("已经缓存UID");
-        };
-
-
-        //登陆
-        serve.Login = function(uid, password) {
+        self.Login = function(obj) {
             var deferred = $q.defer();
-            Data.Users.Login({ UserId: uid, InPassword: password, TerminalIP: 1, TerminalName: 1, revUserId: uid }, function(data, headers, status) {
-                deferred.resolve(data);
-
-            }, function(err) {
-                deferred.reject(err);
-            });
-
-            return deferred.promise;
-
-        };
-        //注册
-        serve.RegisterUser = function(info) {
-            var deferred = $q.defer();
-            if (UID == '' || phonenumber == '') {
-                console.log([UID, phonenumber]);
-                deferred.resolve({ result: null });
-                return deferred.promise;
-            }
-
-
-            Data.Users.Register({
-                UserId: info.uid,
-                Identify: info.id,
-                PhoneNo: phonenumber,
-                UserName: info.username,
-                Role: info.role,
-                Password: info.password,
-                TerminalIP: 1,
-                revUserId: UID
-            }, function(data, headers, status) {
-                console.log(data)
-
-                deferred.resolve(data);
-
-            }, function(err) {
-                deferred.reject(err);
-            });
-
-            return deferred.promise;
-
-        };
-        //创建新的用户
-        serve.CreateNewUserId = function(phonenumber) {
-            var deferred = $q.defer();
-            Data.Users.CreateNewUserId({ PhoneNo: phonenumber }, function(data, headers, status) {
-                deferred.resolve(data);
-
-            }, function(err) {
-                deferred.reject(err);
-            });
-
-            return deferred.promise;
-        };
-        //用手机号获取用户ID
-        serve.GetUserByPhoneNo = function(phonenumber) {
-            var deferred = $q.defer();
-            Data.Users.GetUserByPhoneNo({ PhoneNo: phonenumber }, function(data, headers, status) {
-                deferred.resolve(data);
-
-            }, function(err) {
-                deferred.reject(err);
-            });
-
-            return deferred.promise;
-        };
-
-        //获取用户信息 输入下表 返回属性名和值(张桠童修改过)
-        serve.GetUserInfo = function(obj) {
-            var deferred = $q.defer();
-            Data.Users.GetUserInfo(obj, function(data, headers) {
+            Data.UserService.Login(obj, function(data, headers) {
                 deferred.resolve(data);
             }, function(err) {
                 deferred.reject(err);
@@ -331,30 +227,9 @@
             return deferred.promise;
         };
 
-        //修改密码
-        serve.ChangePassword = function(password, ifp) {
-
+        self.Register = function(obj) {
             var deferred = $q.defer();
-            Data.Users.ChangePassword({
-                "UserId": UID,
-                "IfPhone": ifp,
-                "OldPassword": password.password_old,
-                "NewPassword": password.password,
-                "TerminalIP": CONFIG.baseUrl,
-                "revUserId": UID
-            }, function(data, headers, status) {
-                deferred.resolve(data);
-            }, function(err) {
-                deferred.reject(err);
-            });
-
-            return deferred.promise;
-        };
-
-        // 获取试剂类型--张桠童添加
-        serve.GetReagentType = function() {
-            var deferred = $q.defer();
-            Data.Users.GetReagentType(function(data, headers) {
+            Data.UserService.Register(obj, function(data, headers) {
                 deferred.resolve(data);
             }, function(err) {
                 deferred.reject(err);
@@ -362,22 +237,77 @@
             return deferred.promise;
         };
 
-        //登陆
+        self.ChangePassword = function(obj) {
+            var deferred = $q.defer();
+            Data.UserService.ChangePassword(obj, function(data, headers) {
+                deferred.resolve(data);
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+
+        self.UpdateUserInfo = function(obj) {
+            var deferred = $q.defer();
+            Data.UserService.UpdateUserInfo(obj, function(data, headers) {
+                deferred.resolve(data);
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+
+        self.GetUserInfo = function(obj) {
+            var deferred = $q.defer();
+            Data.UserService.GetUserInfo(obj, function(data, headers) {
+                deferred.resolve(data);
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+
+        self.GetAllUserInfo = function(obj) {
+            var deferred = $q.defer();
+            Data.UserService.GetAllUserInfo(obj, function(data, headers) {
+                deferred.resolve(data);
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
 
 
-        //获取用户信息
-        //获取权限？角色 -- > 如何限制到
+        self.CreateNewUserId = function(obj) {
+            var deferred = $q.defer();
+            Data.UserService.CreateNewUserId(obj, function(data, headers) {
+                deferred.resolve(data);
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
 
-        //修改用户信息
+        self.GetUserByPhoneNo = function(obj) {
+            var deferred = $q.defer();
+            Data.UserService.GetUserByPhoneNo(obj, function(data, headers) {
+                deferred.resolve(data);
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
 
-        //修改密码
-
-
-        //二维码？
-
-        //推送
-
-        return serve;
+        self.GetReagentType = function(obj) {
+            var deferred = $q.defer();
+            Data.UserService.GetReagentType(obj, function(data, headers) {
+                deferred.resolve(data);
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+        return self;
     }])
 
     // 获取所有记录表
@@ -547,6 +477,15 @@
             });
             return deferred.promise;
         };
+        self.GetResultTubes = function(obj) {
+            var deferred = $q.defer();
+            Data.Result.GetResultTubes(obj, function(data, headers) {
+                deferred.resolve(data);
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
         return self;
     }])
 
@@ -557,6 +496,61 @@
         self.GetEquipmentOps = function(obj) {
             var deferred = $q.defer();
             Data.Operation.GetEquipmentOps(obj, function(data, headers) {
+                deferred.resolve(data);
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+
+        self.GetSampleFlow = function(obj) {
+            var deferred = $q.defer();
+            Data.Operation.GetSampleFlow(obj, function(data, headers) {
+                deferred.resolve(data);
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+        self.SetOperationInfo = function(obj) {
+            var deferred = $q.defer();
+            Data.Operation.SetOperationInfo(obj, function(data, headers) {
+                deferred.resolve(data);
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+        self.GetOperationInfo = function(obj) {
+            var deferred = $q.defer();
+            Data.Operation.GetOperationInfo(obj, function(data, headers) {
+                deferred.resolve(data);
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+        self.SetOperationOrder = function(obj) {
+            var deferred = $q.defer();
+            Data.Operation.SetOperationOrder(obj, function(data, headers) {
+                deferred.resolve(data);
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+        self.GetOperationOrder = function(obj) {
+            var deferred = $q.defer();
+            Data.Operation.GetOperationOrder(obj, function(data, headers) {
+                deferred.resolve(data);
+            }, function(err) {
+                deferred.reject(err);
+            });
+            return deferred.promise;
+        };
+        self.GetAllOpTypes = function(obj) {
+            var deferred = $q.defer();
+            Data.Operation.GetAllOpTypes(obj, function(data, headers) {
                 deferred.resolve(data);
             }, function(err) {
                 deferred.reject(err);

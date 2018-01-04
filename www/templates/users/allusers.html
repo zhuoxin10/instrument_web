@@ -1,0 +1,17 @@
+<table ng-table="tableParams" class="table" show-filter="true">
+    <tr ng-repeat="user in $data" style="text-align: center;">
+        <td title="'用户ID'" filter="{ UserId: 'text'}" sortable="'UserId'">
+            {{user.UserId}}</td>
+        <td title="'用户名'" filter="{ UserName: 'text'}">
+            {{user.UserName}}</td>
+        <td title="'用户角色'" filter="{ Role: 'text'}">
+            {{user.Role}}</td>
+        <td title="'身份证号'" filter="{ Identify: 'text'}" sortable="'Identify'">
+            {{user.Identify}}</td>
+        <td title="'上次登录时间'" filter="{ LastLoginTime: 'text'}" sortable="'LastLoginTime'">
+            {{user.LastLoginTime|timeFormat:'YYYY-MM-DD h:m'}}</td>
+        <td title="'详情'">
+            <button class="btn btn-link" style="text-decoration:none; outline:none; padding:0px; border:0px; font-size:10px;" ng-click="todetail(user.UserId)">编辑</button>
+        </td>
+    </tr>
+</table>

@@ -1,14 +1,10 @@
 'use strict';
 
-angular.module('IntelligentDetector', ['ui.router', 'controllers', 'services', 'directives', 'ngTable', 'ngAnimate', 'filters'])
+angular.module('IntelligentDetector', ['ui.router', 'ui.bootstrap', 'controllers', 'services', 'directives', 'ngTable', 'ngAnimate', 'filters'])
 
     .config(['$stateProvider', '$urlRouterProvider',
         function($stateProvider, $urlRouterProvider) {
-            $urlRouterProvider.otherwise("/login");
-            $urlRouterProvider.when('/users', '/main/users/allusers');
-            $urlRouterProvider.when('/monitors', '/main/monitors/realTime');
-            $urlRouterProvider.when('/monitorDebug', '/main/monitors/monitorDebug');
-            $urlRouterProvider.when('/realTime', '/main/monitors/realTime');
+            $urlRouterProvider.otherwise('/login')
 
             $stateProvider
                 // 登录
@@ -29,22 +25,82 @@ angular.module('IntelligentDetector', ['ui.router', 'controllers', 'services', '
                     templateUrl: "templates/main.html",
                     controller: "MainCtrl"
                 })
+
+                // 汇总数据
+                .state('main.data', {
+                    // abstract: true,
+                    url: "/data",
+                    templateUrl: 'templates/data.html',
+                    controller: "dataCtrl"
+                })
+                .state('main.data.testResult', {
+                    url: "/testResult",
+                    templateUrl: 'templates/data/testResult.html',
+                    controller: 'testResultCtrl'
+                })
+                .state('main.data.instrument', {
+                    url: "/instrument",
+                    templateUrl: 'templates/data/instrument.html',
+                    controller: 'instrumentCtrl'
+                })
+                .state('main.data.reagent', {
+                    url: "/reagent",
+                    templateUrl: 'templates/data/reagent.html',
+                    controller: 'reagentCtrl'
+                })
+                .state('main.data.sampling', {
+                    url: "/sampling",
+                    templateUrl: 'templates/data/sampling.html',
+                    controller: 'samplingCtrl'
+                })
+
+                // 监控
                 .state('main.monitors', {
-                    abstract: true,
+                    // abstract: true,
                     url: "/monitors",
                     templateUrl: 'templates/monitors.html',
+                    controller: "monitorsCtrl"
+
                 })
-                // 监控
-                .state('main.monitors.monitorDebug', {
-                    url: "/monitorDebug",
-                    templateUrl: 'templates/monitors/monitorDebug.html',
-                    controller: 'MonitorCtrl'
+
+                //字典管理
+                .state('main.dictionaries', {
+                    // abstract: true,
+                    url: "/dictionaries",
+                    templateUrl: 'templates/dictionaries.html',
+                    controller: "dictionariesCtrl"
+
                 })
-                .state('main.monitors.realTime', {
-                    url: "/realTime",
-                    templateUrl: 'templates/monitors/realTime.html',
-                    controller: "RealTimeCtrl"
+                .state('main.dictionaries.operationorder', {
+                    url: "/operationorder",
+                    templateUrl: 'templates/dictionaries/operationorder.html',
+                    controller: 'operationorderCtrl'
                 })
+                .state('main.dictionaries.operation', {
+                    url: "/operation",
+                    templateUrl: 'templates/dictionaries/operation.html',
+                    controller: "operationCtrl"
+                })
+                .state('main.dictionaries.samplingtype', {
+                    url: "/samplingtype",
+                    templateUrl: 'templates/dictionaries/samplingtype.html',
+                    controller: 'samplingtypeCtrl'
+                })
+
+                //用户管理
+                .state('main.users', {
+                    // abstract: true,
+                    url: "/users",
+                    templateUrl: 'templates/users.html',
+                    controller: "usersCtrl"
+
+                })
+                .state('main.users.allusers', {
+                    url: "/allusers",
+                    templateUrl: 'templates/users/allusers.html',
+                    controller: 'allusersCtrl'
+                })
+
                 // 设置
                 .state('setPassword', {
                     url: "/setPassword",
@@ -67,27 +123,3 @@ angular.module('IntelligentDetector', ['ui.router', 'controllers', 'services', '
                 })
         }
     ])
-
-    .run(['$rootScope', '$stateParams', 'Storage', function($rootScope, $stateParams, Storage) {
-        $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fronParams) {
-            // console.log(fromState);
-            if (fromState.name == 'main.data.testResult') {
-                Storage.rm('ObjectNo');
-                Storage.rm('ObjCompany');
-                Storage.rm('ObjIncuSeq');
-            }
-            // console.log(toState.name);
-            switch (toState.name) {
-                case 'main.monitors.realTime':
-                    $('#mytabs a[href="#monitors"]').tab('show');
-                    $('#mypills a[href="#realTime"]').tab('show');
-                    break;
-                case 'main.monitors.monitorDebug':
-                    // $('#mytabs a[href="#monitors"]').tab('show');
-                    $('#mypills a[href="#monitorDebug"]').tab('show');
-                    break;
-                default:
-                    break;
-            }
-        })
-    }])

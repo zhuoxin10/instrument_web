@@ -1,0 +1,111 @@
+<div class="tab-pane fade in active" id="operation">
+    <h3>基本操作维护</h3>
+    <ul id="mypills2" class="nav nav-pills nav-stacked" style="text-align: right;font-size: 25px;margin-top: -38px">
+        <button type="button" class="btn btn-primary" style="margin-right:20px;width: 100px" ng-click="tonew()">新增</button>
+        <!--                 <button type="button" class="btn btn-primary" style="margin-right:20px" ng-click="toedit()">编辑</button>
+        <button type="button" class="btn btn-primary" style="margin-right:20px" ng-click="todelete()">
+            删除</button> -->
+    </ul>
+    <table ng-table="tableParams" style="margin-top: 20px" class="table" show-filter="true">
+        <tr ng-repeat="type in $data" style="text-align: center;">
+            <td title="'操作ID'" filter="{ OperationId: 'text'}" sortable="'OperationId'">
+                {{type.OperationId}}</td>
+            <td title="'操作名'" filter="{ OperationName: 'text'}">
+                {{type.OperationName}}</td>
+            <td title="'输出代码'" filter="{ OutputCode: 'text'}">
+                {{type.OutputCode}}</td>
+            <td title="'详情'">
+                <button class="btn btn-link" style="text-decoration:none; outline:none; padding:0px; border:0px; font-size:10px;" ng-click="toedit(type)">编辑</button>
+                <button class="btn btn-link" style="text-decoration:none; outline:none; padding:0px; border:0px; font-size:10px;" ng-click="todelete(type.OperationId)">删除</button>
+            </td>
+        </tr>
+    </table>
+</div>
+<!-- 新建操作modal -->
+<div class="modal fade" id="new_operation" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="modal_close('#new_operation')" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">新建操作</h3>
+            </div>
+            <div class="modal-body" style="margin-left: 15%;margin-right: 15%">
+                <form id="new_operationForm" name="cultureForm" class="form-horizontal">
+                    <div class="form-group">
+                        <label>
+                            <br>操作名：</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" class="form-control" ng-model="registerInfo.OperationId" placeholder="请输入操作名称" />
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <br>输出代码：</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" class="form-control" ng-model="registerInfo.OutputCode" placeholder="请输入输出代码" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button " class="btn btn-primary " ng-click="register()">确认新建</button>
+                <button type="button " style="margin-left: 20px" class="btn btn-default " ng-click="modal_close('#new_operation')">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 编辑操作modal -->
+<div class="modal fade" id="edit_operation" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="modal_close('#edit_operation')" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">修改操作</h3>
+            </div>
+            <div class="modal-body" style="margin-left: 15%;margin-right: 15%">
+                <form id="new_operationForm" name="cultureForm" class="form-horizontal">
+                    <div class="form-group">
+                        <label>
+                            <br>操作名：</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" class="form-control" ng-model="editInfo.OperationId" placeholder="请输入操作名称" />
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <br>输出代码：</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" class="form-control" ng-model="editInfo.OutputCode" placeholder="请输入输出代码" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button " class="btn btn-primary " ng-click="edit()">确认修改</button>
+                <button type="button " style="margin-left: 20px" class="btn btn-default " ng-click="modal_close('#edit_operation')">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 是否删除modal -->
+<div class="modal fade" id="DeleteOrNot" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="modal_close('#DeleteOrNot')">&times;</button>
+                <h3 class="modal-title" id="modal-title">警告</h3>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <span>确定删除该操作？</span>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="button" ng-click="delete()">确定</button>
+                <button class="btn btn-warning" type="button" ng-click="modal_close('#DeleteOrNot')">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
